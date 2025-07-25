@@ -8,6 +8,7 @@ import { ChatMessage as ChatMessageComponent } from './ChatMessage';
 import { LeadCaptureForm } from './LeadCaptureForm';
 import { ServerRecommendation } from './ServerRecommendation';
 import { QuoteGeneration } from './QuoteGeneration';
+import { QuoteDisplay } from './QuoteDisplay';
 import { CHAT_PHASES } from '../../utils/constants';
 import demoConversations from '../../data/demoConversations.json';
 
@@ -27,6 +28,8 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
   const [isTyping, setIsTyping] = useState(false);
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const [autoPlayTimeout, setAutoPlayTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [generatedQuote, setGeneratedQuote] = useState<any>(null);
+  const [showQuoteDisplay, setShowQuoteDisplay] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -142,6 +145,49 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
         `📄 **Quote Generated Successfully!**\n\nYour HPE ProLiant server quotation has been generated and sent to ${demoData.persona.email}. The quote includes:\n\n• Detailed server specifications\n• Competitive pricing with volume discounts\n• Standard warranty and support options\n• Implementation timeline\n\nQuote ID: HPE-${Date.now().toString().slice(-6)}`,
         'quote'
       );
+      
+      // Generate quote data for display
+      const quoteData = {
+        id: `HPE-${Date.now().toString().slice(-6)}`,
+        customerInfo: {
+          name: demoData.persona.name,
+          company: demoData.persona.company,
+          email: demoData.persona.email
+        },
+        products: [
+          {
+            model: 'HPE ProLiant DL380 Gen11',
+            quantity: 2,
+            unitPrice: 8400,
+            totalPrice: 16800,
+            configuration: {
+              processor: '2x Intel Xeon Silver 4314 (2.4GHz, 16-core)',
+              memory: '64GB DDR4-3200 ECC',
+              storage: '4x 960GB SSD + 4x 4TB HDD',
+              network: '4x 1GbE + 2x 10GbE SFP+',
+              warranty: '3-year Next Business Day'
+            }
+          }
+        ],
+        pricing: {
+          subtotal: 16800,
+          discount: 1680,
+          tax: 1363,
+          total: 16483,
+          currency: 'USD'
+        },
+        createdAt: new Date(),
+        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        assignedAE: {
+          name: 'Sarah Johnson',
+          email: 'sarah.johnson@hpe.com',
+          phone: '+1-415-555-0123',
+          territory: 'West Coast'
+        },
+        status: 'generated'
+      };
+      
+      setGeneratedQuote(quoteData);
     }, 3000);
   };
 
@@ -311,13 +357,84 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
         { products, customer }
       );
       setPhase(CHAT_PHASES.COMPLETED);
+      
+      // Generate quote data for manual interaction
+      const quoteData = {
+        id: `HPE-${Date.now().toString().slice(-6)}`,
+        customerInfo: customer as any,
+        products: products.map(p => ({
+          model: p.model,
+          quantity: 1,
+          unitPrice: p.pricing.basePrice,
+          totalPrice: p.pricing.basePrice,
+          configuration: {
+            processor: p.specifications.processors,
+            memory: p.specifications.memory,
+            storage: p.specifications.storage,
+            network: '4x 1GbE + 2x 10GbE SFP+',
+            warranty: '3-year Next Business Day'
+          }
+        })),
+        pricing: {
+          subtotal: products.reduce((sum, p) => sum + p.pricing.basePrice, 0),
+          discount: Math.round(products.reduce((sum, p) => sum + p.pricing.basePrice, 0) * 0.1),
+          tax: Math.round(products.reduce((sum, p) => sum + p.pricing.basePrice, 0) * 0.08),
+          total: Math.round(products.reduce((sum, p) => sum + p.pricing.basePrice, 0) * 0.98),
+          currency: 'USD'
+        },
+        createdAt: new Date(),
+        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        assignedAE: {
+          name: 'Sarah Johnson',
+          email: 'sarah.johnson@hpe.com',
+          phone: '+1-415-555-0123',
+          territory: 'West Coast'
+        },
+        status: 'generated'
+      };
+      
+      setGeneratedQuote(quoteData);
     }, 2000);
+  };
+
+  const handleQuoteComplete = (quoteData: any) => {
+    setGeneratedQuote(quoteData);
+  };
+
+  const handleViewQuote = () => {
+    setShowQuoteDisplay(true);
+  };
+
+  const handleCloseQuoteDisplay = () => {
+    setShowQuoteDisplay(false);
   };
 
   const handleEscalation = () => {
     addAgentMessage("I'm connecting you with our sales support team. Please hold on while I transfer your conversation...");
     // In a real implementation, this would trigger the escalation flow
   };
+
+  // Show quote display if requested
+  if (showQuoteDisplay && generatedQuote) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl max-w-5xl w-full h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-[#0F2027]">HPE Server Quotation</h2>
+            <Button variant="ghost" onClick={handleCloseQuoteDisplay}>
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+          <div className="p-6">
+            <QuoteDisplay 
+              quoteData={generatedQuote}
+              onClose={handleCloseQuoteDisplay}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!isOpen) {
     return (
@@ -438,7 +555,29 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
           )}
           
           {phase === CHAT_PHASES.QUOTATION && (
-            <QuoteGeneration />
+            <div className="space-y-4">
+              <QuoteGeneration 
+                customerInfo={customer as any}
+                serverProducts={recommendations}
+                onQuoteComplete={handleQuoteComplete}
+              />
+              {generatedQuote && (
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-[#01A982]">Quote Ready!</p>
+                      <p className="text-sm text-gray-600">Your detailed HPE quotation is available for review</p>
+                    </div>
+                    <Button 
+                      onClick={handleViewQuote}
+                      className="bg-[#01A982] hover:bg-[#018f73]"
+                    >
+                      View Quote
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           {(isTyping || isAutoPlaying) && (

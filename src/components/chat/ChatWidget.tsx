@@ -9,6 +9,7 @@ import { LeadCaptureForm } from './LeadCaptureForm';
 import { ServerRecommendation } from './ServerRecommendation';
 import { QuoteGeneration } from './QuoteGeneration';
 import { CHAT_PHASES } from '../../utils/constants';
+import demoConversations from '../../data/demoConversations.json';
 
 interface ChatWidgetProps {
   isOpen: boolean;
@@ -24,6 +25,8 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
   const [customer, setCustomer] = useState<Partial<Customer>>({});
   const [recommendations, setRecommendations] = useState<ServerProduct[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const [autoPlayTimeout, setAutoPlayTimeout] = useState<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -35,6 +38,14 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
   }, [messages]);
 
   useEffect(() => {
+    return () => {
+      if (autoPlayTimeout) {
+        clearTimeout(autoPlayTimeout);
+      }
+    };
+  }, [autoPlayTimeout]);
+
+  useEffect(() => {
     if (isOpen && messages.length === 0) {
       // Initial greeting
       setTimeout(() => {
@@ -42,6 +53,104 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
       }, 500);
     }
   }, [isOpen]);
+
+  const startAutoPlayDemo = async (demoType: string) => {
+    setIsAutoPlaying(true);
+    setMessages([]);
+    setPhase(CHAT_PHASES.GREETING);
+    setCustomer({});
+    setRecommendations([]);
+    
+    const demoData = demoConversations.find(demo => demo.id === demoType);
+    if (!demoData) return;
+
+    // Set customer data from demo
+    setCustomer({
+      name: demoData.persona.name,
+      company: demoData.persona.company,
+      email: demoData.persona.email
+    });
+
+    let messageIndex = 0;
+    const playNextMessage = () => {
+      if (messageIndex >= demoData.conversation.length) {
+        setIsAutoPlaying(false);
+        return;
+      }
+
+      const message = demoData.conversation[messageIndex];
+      const nextMessage = demoData.conversation[messageIndex + 1];
+      
+      if (message.sender === 'agent') {
+        setIsTyping(true);
+        const timeout = setTimeout(() => {
+          setIsTyping(false);
+          addAgentMessage(message.content, message.type as any, message.products ? { products: message.products } : undefined);
+          
+          // Handle phase transitions
+          if (message.type === 'qualification' && message.content.includes('basic information')) {
+            setPhase(CHAT_PHASES.LEAD_CAPTURE);
+          } else if (message.type === 'qualification' && message.content.includes('requirements')) {
+            setPhase(CHAT_PHASES.REQUIREMENTS);
+          } else if (message.type === 'recommendation') {
+            setPhase(CHAT_PHASES.RECOMMENDATION);
+            // Load recommended products
+            loadRecommendationsForDemo(demoType);
+          } else if (message.type === 'quote_generation') {
+            setPhase(CHAT_PHASES.QUOTATION);
+          } else if (message.type === 'completion') {
+            setPhase(CHAT_PHASES.COMPLETED);
+          }
+          
+          messageIndex++;
+          const delay = nextMessage ? Math.min(nextMessage.timestamp - message.timestamp, 3000) : 2000;
+          setAutoPlayTimeout(setTimeout(playNextMessage, delay));
+        }, 1500);
+        setAutoPlayTimeout(timeout);
+      } else {
+        addUserMessage(message.content);
+        messageIndex++;
+        const delay = nextMessage ? Math.min(nextMessage.timestamp - message.timestamp, 1000) : 1000;
+        setAutoPlayTimeout(setTimeout(playNextMessage, delay));
+      }
+    };
+
+    setTimeout(playNextMessage, 1000);
+  };
+
+  const loadRecommendationsForDemo = async (demoType: string) => {
+    const { default: serverProducts } = await import('../../data/serverProducts.json');
+    
+    let recommendedProducts: ServerProduct[] = [];
+    
+    switch (demoType) {
+      case 'virtualization-demo':
+        recommendedProducts = serverProducts.filter(p => p.useCases.includes('virtualization')).slice(0, 1);
+        break;
+      case 'database-demo':
+        recommendedProducts = serverProducts.filter(p => p.useCases.includes('database')).slice(0, 1);
+        break;
+      case 'small-business-demo':
+        recommendedProducts = serverProducts.filter(p => p.useCases.includes('small-business')).slice(0, 1);
+        break;
+      case 'ai-ml-demo':
+        recommendedProducts = serverProducts.filter(p => p.useCases.includes('ai-ml')).slice(0, 1);
+        break;
+      default:
+        recommendedProducts = serverProducts.slice(0, 1);
+    }
+    
+    setRecommendations(recommendedProducts);
+  };
+
+  const stopAutoPlay = () => {
+    setIsAutoPlaying(false);
+    if (autoPlayTimeout) {
+      clearTimeout(autoPlayTimeout);
+      setAutoPlayTimeout(null);
+    }
+    setIsTyping(false);
+  };
 
   const addAgentMessage = (content: string, type: 'text' | 'recommendation' | 'quote' = 'text', data?: any) => {
     const message: ChatMessage = {
@@ -67,7 +176,7 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
   };
 
   const handleSendMessage = async () => {
-    if (!currentInput.trim()) return;
+    if (!currentInput.trim() || isAutoPlaying) return;
 
     addUserMessage(currentInput);
     const userMessage = currentInput;
@@ -90,6 +199,8 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
   };
 
   const handleLeadCapture = (leadData: { name: string; company: string; email: string }) => {
+    if (isAutoPlaying) return;
+    
     setCustomer(prev => ({ ...prev, ...leadData }));
     addAgentMessage(`Thanks ${leadData.name}! Now, let's talk about your server requirements. What type of workloads are you planning to run?`);
     setPhase(CHAT_PHASES.REQUIREMENTS);
@@ -126,6 +237,8 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
   };
 
   const handleProductApproval = (products: ServerProduct[]) => {
+    if (isAutoPlaying) return;
+    
     addAgentMessage("Excellent choice! Let me generate a customized quote for you right away.");
     setPhase(CHAT_PHASES.QUOTATION);
     
@@ -192,21 +305,70 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
           </div>  
         </div>
 
+        {/* Demo Tags */}
+        {messages.length <= 1 && !isAutoPlaying && (
+          <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 border-b">
+            <p className="text-xs text-gray-600 mb-3">💡 Try these demo scenarios:</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => startAutoPlayDemo('virtualization-demo')}
+                className="px-3 py-1.5 bg-white border border-green-200 rounded-full text-xs font-medium text-green-700 hover:bg-green-50 transition-colors"
+              >
+                🖥️ Virtualization
+              </button>
+              <button
+                onClick={() => startAutoPlayDemo('database-demo')}
+                className="px-3 py-1.5 bg-white border border-blue-200 rounded-full text-xs font-medium text-blue-700 hover:bg-blue-50 transition-colors"
+              >
+                📊 Database
+              </button>
+              <button
+                onClick={() => startAutoPlayDemo('small-business-demo')}
+                className="px-3 py-1.5 bg-white border border-purple-200 rounded-full text-xs font-medium text-purple-700 hover:bg-purple-50 transition-colors"
+              >
+                🏢 Small Business
+              </button>
+              <button
+                onClick={() => startAutoPlayDemo('ai-ml-demo')}
+                className="px-3 py-1.5 bg-white border border-orange-200 rounded-full text-xs font-medium text-orange-700 hover:bg-orange-50 transition-colors"
+              >
+                🤖 AI/ML
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Autoplay Controls */}
+        {isAutoPlaying && (
+          <div className="px-4 py-2 bg-yellow-50 border-b flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+              <span className="text-xs font-medium text-yellow-800">Demo in progress...</span>
+            </div>
+            <button
+              onClick={stopAutoPlay}
+              className="text-xs text-yellow-700 hover:text-yellow-900 font-medium"
+            >
+              Stop Demo
+            </button>
+          </div>
+        )}
+
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((message) => (
             <ChatMessageComponent 
               key={message.id} 
               message={message}
-              onEscalation={phase !== CHAT_PHASES.COMPLETED ? handleEscalation : undefined}
+              onEscalation={phase !== CHAT_PHASES.COMPLETED && !isAutoPlaying ? handleEscalation : undefined}
             />
           ))}
           
-          {phase === CHAT_PHASES.LEAD_CAPTURE && (
+          {phase === CHAT_PHASES.LEAD_CAPTURE && !isAutoPlaying && (
             <LeadCaptureForm onSubmit={handleLeadCapture} />
           )}
           
-          {phase === CHAT_PHASES.RECOMMENDATION && recommendations.length > 0 && (
+          {phase === CHAT_PHASES.RECOMMENDATION && recommendations.length > 0 && !isAutoPlaying && (
             <ServerRecommendation 
               products={recommendations}
               onApprove={handleProductApproval}
@@ -217,14 +379,14 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
             <QuoteGeneration />
           )}
 
-          {isTyping && (
+          {(isTyping || isAutoPlaying) && (
             <div className="flex items-center space-x-2 text-gray-500">
               <div className="flex space-x-1">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
               </div>
-              <span className="text-sm">AI Advisor is typing...</span>
+              <span className="text-sm">{isAutoPlaying ? 'Demo running...' : 'AI Advisor is typing...'}</span>
             </div>
           )}
           
@@ -232,7 +394,7 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
         </div>
 
         {/* Input */}
-        {phase !== CHAT_PHASES.LEAD_CAPTURE && phase !== CHAT_PHASES.COMPLETED && (
+        {phase !== CHAT_PHASES.LEAD_CAPTURE && phase !== CHAT_PHASES.COMPLETED && !isAutoPlaying && (
           <div className="p-4 border-t">
             <div className="flex space-x-2">
               <Input
@@ -241,8 +403,9 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
                 placeholder="Type your message..."
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 className="flex-1"
+                disabled={isAutoPlaying}
               />
-              <Button onClick={handleSendMessage} size="sm">
+              <Button onClick={handleSendMessage} size="sm" disabled={isAutoPlaying}>
                 <Send className="h-4 w-4" />
               </Button>
             </div>

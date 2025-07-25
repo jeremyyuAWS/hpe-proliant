@@ -33,10 +33,17 @@ export function AutoplayDemo() {
   const [showQuote, setShowQuote] = useState(false);
   const [generatedQuote, setGeneratedQuote] = useState<any>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const conversations = demoConversations as DemoConversation[];
   const currentConversation = conversations[currentDemo];
 
+  // Auto-scroll to bottom when new messages are added during autoplay
+  useEffect(() => {
+    if (isPlaying && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [displayedMessages, isPlaying]);
   useEffect(() => {
     if (isPlaying && currentMessage < currentConversation.conversation.length) {
       const message = currentConversation.conversation[currentMessage];
@@ -433,6 +440,8 @@ export function AutoplayDemo() {
               <p className="text-xs text-gray-500 mt-2">Quote will display in a few seconds...</p>
             </div>
           )}
+          
+          <div ref={messagesEndRef} />
         </div>
       </div>
 

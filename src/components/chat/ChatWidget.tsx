@@ -469,7 +469,7 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
               variant="ghost"
               size="sm"
               onClick={onVoiceToggle}
-              className={`text-white hover:bg-white/20 ${isVoiceActive ? 'bg-white/20' : ''}`}
+              className={`text-white hover:bg-white/20 ${isVoiceActive ? 'bg-white/30' : 'bg-gray-700/50'}`}
             >
               {isVoiceActive ? <Phone className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
             </Button>
@@ -477,7 +477,7 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
               variant="ghost"
               size="sm"
               onClick={onToggle}
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-white/20 bg-gray-700/50"
             >
               <X className="h-4 w-4" />
             </Button>

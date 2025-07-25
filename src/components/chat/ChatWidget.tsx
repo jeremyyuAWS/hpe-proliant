@@ -458,9 +458,9 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
         <Button
           onClick={onToggle}
           size="lg"
-          className="rounded-full h-14 w-14 bg-[#01A982] hover:bg-[#018f73] shadow-lg"
+          className="rounded-full h-16 w-16 bg-[#01A982] hover:bg-[#018f73] shadow-lg"
         >
-          <MessageCircle className="h-10 w-10" />
+          <MessageCircle className="h-12 w-12" />
         </Button>
       </div>
     );

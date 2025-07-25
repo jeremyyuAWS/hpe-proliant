@@ -77,12 +77,6 @@
         "content": "Excellent! I'm generating your customized HPE quote right now. This will include 4x HPE ProLiant DL380 Gen11 servers with your specified configuration.",
         "type": "quote_generation"
       },
-      {
-        "timestamp": 33000,
-        "sender": "agent",
-        "content": "Your quote has been generated and sent to david.chen@techcorp.com! I've also assigned you to Sarah Johnson, our Senior Account Executive for the West Coast region. She'll follow up within 24 hours to discuss implementation and support options.",
-        "type": "completion"
-      }
     ]
   },
   {

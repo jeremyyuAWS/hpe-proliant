@@ -75,6 +75,8 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
     const playNextMessage = () => {
       if (messageIndex >= demoData.conversation.length) {
         setIsAutoPlaying(false);
+        // After demo completes, show final phase actions
+        handleDemoCompletion(demoType, demoData);
         return;
       }
 
@@ -98,8 +100,21 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
             loadRecommendationsForDemo(demoType);
           } else if (message.type === 'quote_generation') {
             setPhase(CHAT_PHASES.QUOTATION);
+            // Trigger quote generation sequence
+            setTimeout(() => {
+              handleQuoteGeneration(demoData);
+            }, 2000);
+          } else if (message.type === 'escalation') {
+            // Handle escalation to sales support
+            setTimeout(() => {
+              handleSalesEscalation(demoData);
+            }, 1500);
           } else if (message.type === 'completion') {
             setPhase(CHAT_PHASES.COMPLETED);
+            // Handle AE assignment
+            setTimeout(() => {
+              handleAEAssignment(demoData);
+            }, 1000);
           }
           
           messageIndex++;
@@ -118,6 +133,53 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
     setTimeout(playNextMessage, 1000);
   };
 
+  const handleQuoteGeneration = (demoData: any) => {
+    // Show quote generation progress
+    addAgentMessage("Generating your customized HPE quote now...", 'quote');
+    
+    setTimeout(() => {
+      addAgentMessage(
+        `📄 **Quote Generated Successfully!**\n\nYour HPE ProLiant server quotation has been generated and sent to ${demoData.persona.email}. The quote includes:\n\n• Detailed server specifications\n• Competitive pricing with volume discounts\n• Standard warranty and support options\n• Implementation timeline\n\nQuote ID: HPE-${Date.now().toString().slice(-6)}`,
+        'quote'
+      );
+    }, 3000);
+  };
+
+  const handleAEAssignment = (demoData: any) => {
+    const aeNames = ['Sarah Johnson', 'Michael Chen', 'Emily Rodriguez', 'David Thompson'];
+    const territories = ['West Coast', 'East Coast', 'Central', 'International'];
+    const randomAE = aeNames[Math.floor(Math.random() * aeNames.length)];
+    const randomTerritory = territories[Math.floor(Math.random() * territories.length)];
+    
+    addAgentMessage(
+      `👨‍💼 **Account Executive Assigned**\n\nI've assigned your account to **${randomAE}**, our Senior Account Executive for the ${randomTerritory} region.\n\n**What happens next:**\n• ${randomAE} will contact you within 24 hours\n• Technical consultation on your specific requirements\n• Custom configuration and pricing optimization\n• Implementation planning and support\n\n📞 You can expect a call from ${randomAE} tomorrow morning to discuss your project in detail.`,
+      'completion'
+    );
+  };
+
+  const handleSalesEscalation = (demoData: any) => {
+    addAgentMessage(
+      `🎧 **Connecting to Sales Support**\n\nI'm transferring you to our specialized sales support team who can address your technical requirements in detail.\n\n**Transfer Details:**\n• Complete conversation history included\n• Technical specialist standing by\n• Expected wait time: < 30 seconds\n\nPlease hold while I connect you...`,
+      'escalation'
+    );
+    
+    setTimeout(() => {
+      addAgentMessage(
+        `✅ **Connected to Sales Support**\n\nHi ${demoData.persona.name}, this is Jennifer from HPE Technical Sales Support. I have your complete conversation history and understand you need specialized assistance with your ${demoData.scenario.toLowerCase()}.\n\nHow can I help you with the technical details?`,
+        'escalation'
+      );
+    }, 2000);
+  };
+
+  const handleDemoCompletion = (demoType: string, demoData: any) => {
+    // Add final summary message
+    setTimeout(() => {
+      addAgentMessage(
+        `🎯 **Demo Complete - End-to-End Sales Process**\n\n**What we accomplished:**\n• ⚡ Lead qualification in under 2 minutes\n• 🤖 AI-powered server recommendations\n• 📄 Instant HPE-branded quotation\n• 👨‍💼 Automatic AE assignment\n• 📊 CRM integration and follow-up scheduling\n\n**Customer: ${demoData.persona.name}**\n**Company: ${demoData.persona.company}**\n**Status: Qualified Lead with Quote Delivered**\n\nThis demonstrates HPE's AI-powered sales transformation!`,
+        'completion'
+      );
+    }, 1000);
+  };
   const loadRecommendationsForDemo = async (demoType: string) => {
     const { default: serverProducts } = await import('../../data/serverProducts.json');
     

@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { FileText, Mail, Phone, Download, Share, User, Calendar, DollarSign, Server, Shield, Clock, Check, Award, Truck, HeadphonesIcon, Globe, CreditCard, Building, MapPin, Zap, ChevronRight, Star, Target, TrendingUp } from 'lucide-react';
+import { downloadQuoteAsPDF } from '../../utils/pdfGenerator';
 
 interface QuoteDisplayProps {
   quoteData: {
@@ -46,7 +47,7 @@ interface QuoteDisplayProps {
 
 export function QuoteDisplay({ quoteData, onClose }: QuoteDisplayProps) {
   const handleDownloadPDF = () => {
-    console.log('Downloading PDF quote:', quoteData.id);
+    downloadQuoteAsPDF(quoteData);
   };
 
   const handleEmailQuote = () => {

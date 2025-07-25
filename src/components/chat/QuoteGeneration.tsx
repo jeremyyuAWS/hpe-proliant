@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Loader2, FileText, Mail, User, CheckCircle, Server, Calculator, DollarSign, Clock } from 'lucide-react';
+import { downloadQuoteAsPDF } from '../../utils/pdfGenerator';
 
 interface QuoteGenerationProps {
   customerInfo?: {
@@ -259,6 +260,7 @@ export function QuoteGeneration({ customerInfo, serverProducts, onQuoteComplete 
               
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button className="flex-1 bg-[#01A982] hover:bg-[#018f73]">
+                  onClick={() => downloadQuoteAsPDF(quoteData)}
                   <FileText className="mr-2 h-4 w-4" />
                   Download PDF Quote
                 </Button>

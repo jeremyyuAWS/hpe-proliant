@@ -308,7 +308,7 @@ export function AutoplayDemo() {
             >
               {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             </Button>
-            <Button onClick={resetDemo} variant="outline" size="sm" className="text-white border-white hover:bg-white/10">
+            <Button onClick={resetDemo} size="sm" className="bg-gray-600 hover:bg-gray-700 text-white">
               <RotateCcw className="h-4 w-4" />
             </Button>
             <Button onClick={nextDemo} size="sm" className="bg-gray-600 hover:bg-gray-700 text-white">

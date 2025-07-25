@@ -76,7 +76,7 @@
         "sender": "agent",
         "content": "Excellent! I'm generating your customized HPE quote right now. This will include 4x HPE ProLiant DL380 Gen11 servers with your specified configuration.",
         "type": "quote_generation"
-      },
+      }
     ]
   },
   {

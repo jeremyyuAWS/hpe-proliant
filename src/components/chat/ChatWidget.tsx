@@ -67,6 +67,9 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
     const demoData = demoConversations.find(demo => demo.id === demoType);
     if (!demoData) return;
 
+    // Import server products for product data resolution
+    const { default: serverProducts } = await import('../../data/serverProducts.json');
+
     // Set customer data from demo
     setCustomer({
       name: demoData.persona.name,
@@ -90,7 +93,20 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
         setIsTyping(true);
         const timeout = setTimeout(() => {
           setIsTyping(false);
-          addAgentMessage(message.content, message.type as any, message.products ? { products: message.products } : undefined);
+          
+          // Handle product data for recommendation messages
+          let messageData = undefined;
+          if (message.type === 'recommendation' && message.products) {
+            // Convert product IDs to full product objects
+            const fullProducts = message.products.map((productId: string) => 
+              serverProducts.find(p => p.id === productId)
+            ).filter(Boolean);
+            messageData = { products: fullProducts };
+          } else if (message.products) {
+            messageData = { products: message.products };
+          }
+          
+          addAgentMessage(message.content, message.type as any, messageData);
           
           // Handle phase transitions
           if (message.type === 'qualification' && message.content.includes('basic information')) {

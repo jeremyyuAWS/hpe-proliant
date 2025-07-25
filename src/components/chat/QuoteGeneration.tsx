@@ -66,7 +66,8 @@ export function QuoteGeneration({ customerInfo, serverProducts, onQuoteComplete 
     ];
 
     let currentStepIndex = 0;
-    const interval = setInterval(() => {
+    let intervalId: NodeJS.Timeout;
+    const processNextStep = () => {
       if (currentStepIndex < steps.length) {
         setProgress(steps[currentStepIndex].progress);
         setCurrentStep(steps[currentStepIndex].step);
@@ -119,13 +120,21 @@ export function QuoteGeneration({ customerInfo, serverProducts, onQuoteComplete 
           if (onQuoteComplete) {
             onQuoteComplete(generatedQuote);
           }
+          // Clear interval after completion
+          clearInterval(intervalId);
+          return;
         }
         
         currentStepIndex++;
+        // Schedule next step
+        intervalId = setTimeout(processNextStep, 800);
       } else {
-        clearInterval(interval);
+        clearInterval(intervalId);
       }
-    }, 800);
+    };
+    
+      if (intervalId) {
+        clearTimeout(intervalId);
 
     return () => clearInterval(interval);
   }, [customerInfo, serverProducts, onQuoteComplete]);

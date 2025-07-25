@@ -76,7 +76,7 @@ function App() {
                 <img 
                   src="/Hewlett-Packard-Enterprise-Logo-1.png" 
                   alt="HPE Logo" 
-                  className="h-16 w-auto mr-4"
+                  className="h-18 w-auto mr-4"
                 />
                 <div>
                   <h2 className="text-2xl font-bold mb-2">HPE AI Sales Assistant Demo</h2>

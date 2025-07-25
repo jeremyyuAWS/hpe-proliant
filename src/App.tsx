@@ -6,6 +6,7 @@ import { ChatWidget } from './components/chat/ChatWidget';
 import { VoiceAgent } from './components/voice/VoiceAgent';
 import { AEDashboard } from './components/dashboard/AEDashboard';
 import { SalesSupport } from './components/support/SalesSupport';
+import { AutoplayDemo } from './components/demo/AutoplayDemo';
 import { ServerProduct, ChatMessage } from './types';
 
 type AppView = 'landing' | 'dashboard' | 'support';
@@ -105,6 +106,16 @@ function App() {
                 >
                   💬 AI Chat Experience
                 </button>
+              </div>
+              
+              {/* Autoplay Demo Section */}
+              <div className="mt-16">
+                <h3 className="text-2xl font-bold text-[#01A982] mb-6">🎬 Live Demo Conversations</h3>
+                <p className="text-gray-300 mb-8 max-w-4xl mx-auto">
+                  Watch realistic customer conversations unfold automatically. Each demo showcases different customer personas, 
+                  requirements, and outcomes - from initial contact to quote generation and AE assignment.
+                </p>
+                <AutoplayDemo />
               </div>
               
               <div className="mt-12 grid md:grid-cols-3 gap-8 text-left">

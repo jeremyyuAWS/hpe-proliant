@@ -133,10 +133,14 @@ export function QuoteGeneration({ customerInfo, serverProducts, onQuoteComplete 
       }
     };
     
+    const interval = setTimeout(processNextStep, 500);
+    
+    return () => {
       if (intervalId) {
         clearTimeout(intervalId);
-
-    return () => clearInterval(interval);
+      }
+      clearTimeout(interval);
+    };
   }, [customerInfo, serverProducts, onQuoteComplete]);
 
   return (

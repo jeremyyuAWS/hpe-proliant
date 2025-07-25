@@ -1,0 +1,34 @@
+[
+  {
+    "id": "ae-001",
+    "name": "Sarah Johnson",
+    "email": "sarah.johnson@hpe.com",
+    "territory": "West Coast",
+    "phone": "+1-415-555-0123",
+    "avatar": "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150"
+  },
+  {
+    "id": "ae-002", 
+    "name": "Michael Chen",
+    "email": "michael.chen@hpe.com",
+    "territory": "East Coast",
+    "phone": "+1-212-555-0456",
+    "avatar": "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150"
+  },
+  {
+    "id": "ae-003",
+    "name": "Emily Rodriguez",
+    "email": "emily.rodriguez@hpe.com", 
+    "territory": "Central",
+    "phone": "+1-312-555-0789",
+    "avatar": "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150"
+  },
+  {
+    "id": "ae-004",
+    "name": "David Thompson",
+    "email": "david.thompson@hpe.com",
+    "territory": "International",
+    "phone": "+44-20-7946-0958",
+    "avatar": "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=150"
+  }
+]

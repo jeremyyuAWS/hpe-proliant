@@ -1,0 +1,86 @@
+[
+  {
+    "id": "proliant-dl380-gen11",
+    "model": "HPE ProLiant DL380 Gen11",
+    "series": "DL Series",
+    "category": "2U Rack Server",
+    "description": "The industry's most trusted compute platform, delivering exceptional performance, security, and reliability for diverse workloads.",
+    "specifications": {
+      "processors": "Up to 2x 4th Gen Intel Xeon Scalable processors",
+      "memory": "Up to 8TB DDR5-4800 memory",
+      "storage": "Up to 30 SFF or 12 LFF drive bays",
+      "formFactor": "2U Rack",
+      "powerSupply": "500W-1600W Platinum Hot Plug"
+    },
+    "pricing": {
+      "basePrice": 4200,
+      "currency": "USD"
+    },
+    "imageUrl": "https://images.pexels.com/photos/442150/pexels-photo-442150.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "useCases": ["virtualization", "database", "enterprise"],
+    "targetWorkloads": ["VMware vSphere", "Microsoft Hyper-V", "Database servers", "ERP applications"]
+  },
+  {
+    "id": "proliant-dl360-gen11",
+    "model": "HPE ProLiant DL360 Gen11",
+    "series": "DL Series", 
+    "category": "1U Rack Server",
+    "description": "The world's best-selling server, optimized for space-constrained environments without compromising performance.",
+    "specifications": {
+      "processors": "Up to 2x 4th Gen Intel Xeon Scalable processors",
+      "memory": "Up to 4TB DDR5-4800 memory",
+      "storage": "Up to 10 SFF drive bays",
+      "formFactor": "1U Rack",
+      "powerSupply": "500W-800W Platinum Hot Plug"
+    },
+    "pricing": {
+      "basePrice": 3800,
+      "currency": "USD"
+    },
+    "imageUrl": "https://images.pexels.com/photos/325229/pexels-photo-325229.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "useCases": ["web", "virtualization", "database"],
+    "targetWorkloads": ["Web servers", "Application servers", "Virtual desktop infrastructure"]
+  },
+  {
+    "id": "proliant-ml350-gen11",
+    "model": "HPE ProLiant ML350 Gen11",
+    "series": "ML Series",
+    "category": "Tower Server", 
+    "description": "A versatile tower server perfect for small to medium businesses and remote office deployments.",
+    "specifications": {
+      "processors": "Up to 2x 4th Gen Intel Xeon Scalable processors",
+      "memory": "Up to 4TB DDR5-4800 memory",
+      "storage": "Up to 8 LFF drive bays",
+      "formFactor": "Tower",
+      "powerSupply": "500W-800W"
+    },
+    "pricing": {
+      "basePrice": 3200,
+      "currency": "USD"
+    },
+    "imageUrl": "https://images.pexels.com/photos/159304/network-cable-ethernet-computer-159304.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "useCases": ["small-business", "file-storage", "backup"],
+    "targetWorkloads": ["File and print servers", "Small business applications", "Backup and recovery"]
+  },
+  {
+    "id": "proliant-dl580-gen11",
+    "model": "HPE ProLiant DL580 Gen11",
+    "series": "DL Series",
+    "category": "4U Rack Server",
+    "description": "Mission-critical server designed for the most demanding enterprise workloads and in-memory computing.",
+    "specifications": {
+      "processors": "Up to 4x 4th Gen Intel Xeon Scalable processors",
+      "memory": "Up to 24TB DDR5-4800 memory",
+      "storage": "Up to 28 SFF drive bays",
+      "formFactor": "4U Rack",
+      "powerSupply": "1600W-2650W Platinum Hot Plug"
+    },
+    "pricing": {
+      "basePrice": 12500,
+      "currency": "USD"
+    },
+    "imageUrl": "https://images.pexels.com/photos/2582937/pexels-photo-2582937.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "useCases": ["enterprise", "ai-ml", "database"],
+    "targetWorkloads": ["SAP HANA", "Oracle databases", "AI/ML workloads", "Real-time analytics"]
+  }
+]

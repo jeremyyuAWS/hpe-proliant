@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { ChatMessage, Customer, ServerProduct } from '../../types';
 import { MessageCircle, X, Send, Mic, MicOff, Phone } from 'lucide-react';
+import { Maximize2, Minimize2 } from 'lucide-react';
 import { ChatMessage as ChatMessageComponent } from './ChatMessage';
 import { LeadCaptureForm } from './LeadCaptureForm';
 import { ServerRecommendation } from './ServerRecommendation';
@@ -30,7 +31,12 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
   const [autoPlayTimeout, setAutoPlayTimeout] = useState<NodeJS.Timeout | null>(null);
   const [generatedQuote, setGeneratedQuote] = useState<any>(null);
   const [showQuoteDisplay, setShowQuoteDisplay] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const toggleMaximize = () => {
+    setIsMaximized(!isMaximized);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -467,7 +473,9 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-96 h-[600px]">
+    <div className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${
+      isMaximized ? 'w-[800px] h-[700px]' : 'w-96 h-[600px]'
+    }`}>
       <Card className="h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b bg-[#01A982] text-white rounded-t-2xl">
@@ -488,6 +496,15 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
               className={`text-white hover:bg-white/20 ${isVoiceActive ? 'bg-white/30' : 'bg-gray-600/70'}`}
             >
               {isVoiceActive ? <Phone className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleMaximize}
+              className="text-white hover:bg-white/20 bg-gray-600/70"
+              title={isMaximized ? 'Minimize chat' : 'Maximize chat'}
+            >
+              {isMaximized ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </Button>
             <Button
               variant="ghost"

@@ -18,8 +18,15 @@ export function QuoteGeneration({ customerInfo, serverProducts, onQuoteComplete 
   const [currentStep, setCurrentStep] = useState('Initializing quote generation...');
   const [stepDetails, setStepDetails] = useState('');
   const [quoteData, setQuoteData] = useState<any>(null);
+  const [isGenerating, setIsGenerating] = useState(true);
 
   useEffect(() => {
+    // Prevent multiple runs
+    if (!isGenerating) return;
+    
+    let timeouts: NodeJS.Timeout[] = [];
+    let isCleanedUp = false;
+    
     const steps = [
       { 
         progress: 15, 
@@ -65,17 +72,86 @@ export function QuoteGeneration({ customerInfo, serverProducts, onQuoteComplete 
       }
     ];
 
-    let currentStepIndex = 0;
-    let intervalId: NodeJS.Timeout;
     const processNextStep = () => {
-      if (currentStepIndex < steps.length) {
-        setProgress(steps[currentStepIndex].progress);
-        setCurrentStep(steps[currentStepIndex].step);
-        setStepDetails(steps[currentStepIndex].details);
+      steps.forEach((step, index) => {
+        const timeout = setTimeout(() => {
+          if (isCleanedUp) return;
+          
+          setProgress(step.progress);
+          setCurrentStep(step.step);
+          setStepDetails(step.details);
         
-        if (currentStepIndex === steps.length - 1) {
-          // Generate quote data when complete
-          const generatedQuote = {
+          if (index === steps.length - 1) {
+            // Generate quote data when complete
+            const generatedQuote = {
+              id: `HPE-${Date.now().toString().slice(-6)}`,
+              customerId: 'customer-' + Date.now(),
+              customerInfo: customerInfo || {
+                name: 'John Smith',
+                company: 'TechCorp Inc',
+                email: 'john@techcorp.com'
+              },
+              products: serverProducts || [
+                {
+                  model: 'HPE ProLiant DL380 Gen11',
+                  quantity: 2,
+                  unitPrice: 8400,
+                  totalPrice: 16800,
+                  configuration: {
+                    processor: '2x Intel Xeon Silver 4314 (2.4GHz, 16-core)',
+                    memory: '64GB DDR4-3200 ECC',
+                    storage: '4x 960GB SSD + 4x 4TB HDD',
+                    network: '4x 1GbE + 2x 10GbE SFP+',
+                    warranty: '3-year Next Business Day'
+                  }
+                }
+              ],
+              pricing: {
+                subtotal: 16800,
+                discount: 1680,
+                tax: 1363,
+                total: 16483,
+                currency: 'USD'
+              },
+              createdAt: new Date(),
+              validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+              assignedAE: {
+                name: 'Sarah Johnson',
+                email: 'sarah.johnson@hpe.com',
+                phone: '+1-415-555-0123',
+                territory: 'West Coast'
+              },
+              status: 'generated'
+            };
+            
+            setQuoteData(generatedQuote);
+            setIsGenerating(false);
+            if (onQuoteComplete) {
+              onQuoteComplete(generatedQuote);
+            }
+          }
+        }, 500 + (index * 800));
+        
+        timeouts.push(timeout);
+      });
+    };
+    
+    processNextStep();
+    
+    return () => {
+      isCleanedUp = true;
+      timeouts.forEach(timeout => clearTimeout(timeout));
+    };
+  }, [isGenerating]);
+
+  // Reset when props change
+  useEffect(() => {
+    setIsGenerating(true);
+    setProgress(0);
+    setCurrentStep('Initializing quote generation...');
+    setStepDetails('');
+    setQuoteData(null);
+  }, [customerInfo, serverProducts]);
             id: `HPE-${Date.now().toString().slice(-6)}`,
             customerId: 'customer-' + Date.now(),
             customerInfo: customerInfo || {

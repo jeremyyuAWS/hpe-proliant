@@ -148,6 +148,9 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
                 <h3 className="text-2xl font-semibold text-center">Or try these popular questions:</h3>
                 <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
                   {quickQuestions.map((question, index) => (
+                    )
+                    )
+                    }
                     <Button
                       key={index}
                       onClick={() => handleQuickQuestion(question.text)}
@@ -160,15 +163,15 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
                         </div>
                         <div className="flex-1 text-left">
                           <div className="text-xs text-[#FF8300] font-medium mb-2 uppercase tracking-wide">
-                            {question.category}
+                  Server Recommendations
                           </div>
                           <div className="text-white font-medium leading-relaxed">
                             {question.text}
-                          </div>
+                  HPE-Branded Quotes
                         </div>
                       </div>
                     </Button>
-                  ))}
+                  Account Executive Assignment
                 </div>
               </div>
             </div>
@@ -177,24 +180,24 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
             <div className="grid md:grid-cols-3 gap-8 pt-12 border-t border-white/10">
               <div className="text-center space-y-3">
                 <div className="w-12 h-12 bg-[#01A982]/20 rounded-xl flex items-center justify-center mx-auto">
-                  <Server className="h-6 w-6 text-[#01A982]" />
+                  <BarChart className="h-6 w-6 text-[#01A982]" />
                 </div>
-                <h4 className="font-semibold">Server Recommendations</h4>
-                <p className="text-sm text-gray-400">AI-powered matching to your exact requirements</p>
+                <h4 className="font-semibold">Market Intelligence</h4>
+                <p className="text-sm text-gray-400">Access to latest research reports and market analysis</p>
               </div>
               <div className="text-center space-y-3">
                 <div className="w-12 h-12 bg-[#FF8300]/20 rounded-xl flex items-center justify-center mx-auto">
-                  <MessageCircle className="h-6 w-6 text-[#FF8300]" />
+                  <TrendingUp className="h-6 w-6 text-[#FF8300]" />
                 </div>
-                <h4 className="font-semibold">Instant Quotes</h4>
-                <p className="text-sm text-gray-400">Professional HPE-branded quotations in minutes</p>
+                <h4 className="font-semibold">Trend Analysis</h4>
+                <p className="text-sm text-gray-400">Real-time insights on emerging technology trends</p>
               </div>
               <div className="text-center space-y-3">
                 <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto">
-                  <Users className="h-6 w-6 text-purple-400" />
+                  <Lightbulb className="h-6 w-6 text-purple-400" />
                 </div>
-                <h4 className="font-semibold">Expert Support</h4>
-                <p className="text-sm text-gray-400">Dedicated account executives and sales support</p>
+                <h4 className="font-semibold">Strategic Guidance</h4>
+                <p className="text-sm text-gray-400">Personalized recommendations for your business</p>
               </div>
             </div>
           </div>

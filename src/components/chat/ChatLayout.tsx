@@ -35,12 +35,12 @@ interface ServerProduct {
 
 const serverProducts: ServerProduct[] = [
   {
-    model: 'HPE ProLiant DL380 Gen11',
-    description: 'High-performance 2U rack server for virtualization and databases',
+    model: 'HPE ProLiant DL380 Gen10 Plus',
+    description: 'High-performance 2U rack server ideal for virtualization and databases',
     specifications: {
-      formFactor: '2U Rack',
+      formFactor: '2U Rack Mount',
       processors: 'Intel Xeon Scalable (up to 2)',
-      memory: 'Up to 8TB DDR5'
+      memory: 'Up to 6TB DDR4'
     },
     pricing: {
       basePrice: 4500
@@ -48,12 +48,12 @@ const serverProducts: ServerProduct[] = [
     useCases: ['virtualization', 'database', 'general-purpose']
   },
   {
-    model: 'HPE ProLiant ML350 Gen11',
-    description: 'Versatile tower server for small to medium businesses',
+    model: 'HPE ProLiant ML350 Gen10 Plus',
+    description: 'Versatile tower server perfect for small to medium businesses',
     specifications: {
       formFactor: 'Tower',
       processors: 'Intel Xeon Scalable (up to 2)',
-      memory: 'Up to 4TB DDR5'
+      memory: 'Up to 3TB DDR4'
     },
     pricing: {
       basePrice: 3200
@@ -61,12 +61,12 @@ const serverProducts: ServerProduct[] = [
     useCases: ['small-business', 'web', 'general-purpose']
   },
   {
-    model: 'HPE ProLiant DL385 Gen11',
-    description: 'AMD-powered server optimized for AI and machine learning',
+    model: 'HPE ProLiant DL385 Gen10 Plus',
+    description: 'AMD-powered server optimized for AI/ML workloads',
     specifications: {
-      formFactor: '2U Rack',
+      formFactor: '2U Rack Mount',
       processors: 'AMD EPYC (up to 2)',
-      memory: 'Up to 6TB DDR5'
+      memory: 'Up to 4TB DDR4'
     },
     pricing: {
       basePrice: 5200
@@ -316,19 +316,28 @@ Just say "yes" or "generate quote" and I'll prepare your HPE-branded quotation i
   };
 
   const extractRelatedTopics = (message: string): string[] => {
-    const topicMap: Record<string, string[]> = {
-      'genai': ['Machine Learning', 'Automation', 'NLP', 'Computer Vision', 'AI Ethics'],
-      'cloud': ['DevOps', 'Containerization', 'Microservices', 'Security', 'Cost Optimization'],
-      'default': ['Digital Transformation', 'Innovation', 'Technology Strategy', 'Market Analysis']
+    const serverTopicMap: Record<string, string[]> = {
+      'virtualization': ['VMware vSphere', 'Hyper-V', 'Memory Optimization', 'High Availability', 'Disaster Recovery'],
+      'database': ['SQL Server', 'Oracle Database', 'MySQL', 'Storage Performance', 'Backup Solutions'],
+      'ai-ml': ['GPU Acceleration', 'TensorFlow', 'PyTorch', 'Data Analytics', 'Model Training'],
+      'web': ['Load Balancing', 'Web Applications', 'Content Delivery', 'SSL Certificates', 'Security'],
+      'small-business': ['File Sharing', 'Email Server', 'Domain Controller', 'Backup', 'Remote Access'],
+      'default': ['Server Consolidation', 'Power Efficiency', 'Scalability', 'Warranty Options', 'Support Services']
     };
 
     const lowercaseMessage = message.toLowerCase();
-    if (lowercaseMessage.includes('genai') || lowercaseMessage.includes('ai')) {
-      return topicMap.genai;
-    } else if (lowercaseMessage.includes('cloud')) {
-      return topicMap.cloud;
+    if (lowercaseMessage.includes('virtualization') || lowercaseMessage.includes('vmware')) {
+      return serverTopicMap.virtualization;
+    } else if (lowercaseMessage.includes('database') || lowercaseMessage.includes('sql')) {
+      return serverTopicMap.database;
+    } else if (lowercaseMessage.includes('ai') || lowercaseMessage.includes('machine learning')) {
+      return serverTopicMap['ai-ml'];
+    } else if (lowercaseMessage.includes('web') || lowercaseMessage.includes('hosting')) {
+      return serverTopicMap.web;
+    } else if (lowercaseMessage.includes('small business')) {
+      return serverTopicMap['small-business'];
     } else {
-      return topicMap.default;
+      return serverTopicMap.default;
     }
   };
 

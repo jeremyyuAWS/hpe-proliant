@@ -339,6 +339,42 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
   const handleRequirementsPhase = async (userMessage: string) => {
     // Simple keyword-based recommendation logic
     const message = userMessage.toLowerCase();
+    
+    // More sophisticated conversation logic
+    if (message.includes('budget') || message.includes('cost') || message.includes('price')) {
+      addAgentMessage(
+        "Budget is definitely important for planning. Could you give me a rough range you're considering? This helps me recommend the most cost-effective solutions.\n\nFor context:\n• Entry-level servers: $3K-8K\n• Mid-range enterprise: $8K-25K\n• High-performance/mission-critical: $25K-100K+\n\nI'll make sure to provide options within your range!"
+      );
+      return;
+    }
+    
+    if (message.includes('timeline') || message.includes('when') || message.includes('urgent')) {
+      addAgentMessage(
+        "Timeline is crucial for proper planning! Here's what I can offer:\n\n**Standard delivery:** 2-4 weeks\n**Expedited shipping:** 1-2 weeks (additional cost)\n**Express configuration:** Custom configs in 3-5 days\n**Emergency deployment:** 24-48 hours (subject to availability)\n\nWhat's your ideal timeline? I can adjust recommendations and pricing accordingly."
+      );
+      return;
+    }
+    
+    if (message.includes('support') || message.includes('warranty') || message.includes('service')) {
+      addAgentMessage(
+        "Support is critical for business continuity! HPE offers comprehensive support options:\n\n**Included with every server:**\n• 3-year standard warranty\n• Online support portal access\n• Basic phone support\n\n**Premium options:**\n• 24x7 phone support with 2-hour response\n• Next business day hardware replacement\n• Remote monitoring and diagnostics\n• Dedicated account manager\n\nWhat level of support does your organization require?"
+      );
+      return;
+    }
+    
+    if (message.includes('compare') || message.includes('versus') || message.includes('vs') || message.includes('alternative')) {
+      addAgentMessage(
+        "Great question! HPE ProLiant servers offer several advantages:\n\n**vs. Dell PowerEdge:**\n• Superior memory capacity and expansion\n• Better integrated management (iLO)\n• Higher reliability ratings\n\n**vs. Lenovo ThinkSystem:**\n• More comprehensive support ecosystem\n• Better software integration\n• Stronger enterprise features\n\n**vs. Public Cloud:**\n• 40-60% lower TCO for consistent workloads\n• Complete data control and security\n• Predictable performance\n\nWould you like detailed comparisons for your specific use case?"
+      );
+      return;
+    }
+    
+    if (message.includes('security') || message.includes('compliance') || message.includes('hipaa') || message.includes('sox')) {
+      addAgentMessage(
+        "Security and compliance are paramount in today's environment. HPE ProLiant servers include:\n\n**Built-in Security Features:**\n• TPM 2.0 hardware security\n• Secure Boot with digital signatures\n• Runtime firmware verification\n• Hardware-based encryption\n\n**Compliance Certifications:**\n• FIPS 140-2 validation\n• Common Criteria certification\n• HIPAA pre-certification available\n• SOX compliance documentation\n\nWhat specific compliance requirements do you need to meet?"
+      );
+      return;
+    }
     let recommendedProducts: ServerProduct[] = [];
 
     // Import server products
@@ -348,33 +384,62 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
       recommendedProducts = serverProducts.filter(p => p.useCases.includes('virtualization'));
     } else if (message.includes('database') || message.includes('sql') || message.includes('oracle')) {
       recommendedProducts = serverProducts.filter(p => p.useCases.includes('database'));
+      addAgentMessage(
+        `**Database servers require optimized performance for your workloads!**\n\nBased on your database requirements, here are my HPE ProLiant recommendations:\n\n**Database-specific optimizations:**\n• High-performance storage (NVMe SSDs)\n• Maximum memory capacity for caching\n• Multi-core processors for concurrent queries\n• Enterprise reliability features\n\n**Let me fine-tune the recommendation:**\n• Which database platform? (SQL Server, Oracle, MySQL, PostgreSQL)\n• Database size and growth projections?\n• Number of concurrent users or connections?\n• Performance requirements (transactions/sec, query response time)?\n• High availability needs (clustering, replication)?\n\nI can configure the perfect database server for your needs!`,
+        'recommendation',
+        { products: recommendedProducts.slice(0, 2) }
+      );
     } else if (message.includes('small') || message.includes('office') || message.includes('startup')) {
       recommendedProducts = serverProducts.filter(p => p.useCases.includes('small-business'));
+      addAgentMessage(
+        `**Perfect! Small business solutions need to be cost-effective yet reliable.**\n\nFor small business environments, I recommend these HPE ProLiant servers:\n\n**Small business benefits:**\n• Affordable entry point with room to grow\n• Easy management and setup\n• Quiet operation for office environments\n• Comprehensive warranty and support\n\n**Typical small business use cases:**\n• File and print sharing\n• Email and collaboration\n• Business applications\n• Backup and data protection\n\n**To customize your solution:**\n• How many employees will use the server?\n• Primary applications or services needed?\n• Office environment or dedicated server room?\n• Budget considerations?\n\nLet me configure the ideal small business server for you!`,
+        'recommendation',
+        { products: recommendedProducts.slice(0, 2) }
+      );
     } else if (message.includes('ai') || message.includes('machine learning') || message.includes('analytics')) {
       recommendedProducts = serverProducts.filter(p => p.useCases.includes('ai-ml'));
+      addAgentMessage(
+        `**AI and Machine Learning workloads require specialized hardware!**\n\nBased on your requirements, I recommend these HPE ProLiant servers optimized for AI/ML:\n\n**Key considerations for your AI workloads:**\n• GPU acceleration capabilities\n• High-bandwidth memory for large datasets\n• Fast storage for model training\n• Scalable architecture for growing demands\n\n**Follow-up questions to optimize your recommendation:**\n• Are you primarily doing model training or inference?\n• What frameworks are you using? (TensorFlow, PyTorch, etc.)\n• Dataset sizes and memory requirements?\n• GPU preferences? (NVIDIA A100, H100, etc.)\n\nWould you like me to configure a system with GPU acceleration?`,
+        'recommendation',
+        { products: recommendedProducts.slice(0, 2) }
+      );
+    } else if (message.includes('enterprise') || message.includes('large') || message.includes('scale')) {
+      recommendedProducts = serverProducts.filter(p => p.useCases.includes('enterprise'));
+      addAgentMessage(
+        `**Enterprise-scale infrastructure requires robust, reliable solutions!**\n\nFor large-scale deployments, I recommend these enterprise-class HPE ProLiant servers:\n\n**Enterprise features you'll benefit from:**\n• Mission-critical reliability and redundancy\n• Advanced management and monitoring\n• Comprehensive support and services\n• Scalable architecture for growth\n\n**Let me understand your enterprise requirements:**\n• How many users will this support?\n• High availability requirements?\n• Integration with existing infrastructure?\n• Compliance or regulatory requirements?\n\nShall I configure an enterprise solution for you?`,
+        'recommendation', 
+        { products: recommendedProducts.slice(0, 2) }
+      );
     } else {
       // Default recommendations
       recommendedProducts = serverProducts.slice(0, 2);
+      addAgentMessage(
+        `**Thank you for sharing your requirements!** Based on what you've told me, here are my initial HPE ProLiant server recommendations:\n\n**To provide the most accurate recommendation, could you help me understand:**\n• Primary use case or workload type?\n• Expected number of users or applications?\n• Performance requirements or constraints?\n• Budget considerations?\n• Timeline for implementation?\n\n**I can also help with:**\n• Custom configurations\n• Pricing and financing options\n• Support and warranty plans\n• Implementation services\n\nWhat specific questions do you have about these servers?`,
+        'recommendation',
+        { products: recommendedProducts.slice(0, 2) }
+      );
+      addAgentMessage(
+        `**Virtualization infrastructure is one of our specialties!**\n\nFor VMware and Hyper-V environments, these HPE ProLiant servers are optimized for virtual workloads:\n\n**Virtualization-specific benefits:**\n• High memory capacity for multiple VMs\n• Multi-core processors for VM density\n• SR-IOV networking for performance\n• VMware certification and optimization\n\n**Key planning questions:**\n• How many VMs are you planning to run?\n• Average VM memory requirements?\n• Current virtualization platform? (VMware vSphere, Hyper-V, KVM)\n• Host count and consolidation goals?\n• Storage requirements (local vs. shared)?\n\nI can design the perfect virtualization platform for your needs!`,
+        'recommendation',
+        { products: recommendedProducts.slice(0, 2) }
+      );
     }
 
     setRecommendations(recommendedProducts.slice(0, 2));
-    addAgentMessage(
-      `Based on your requirements, I recommend these HPE ProLiant servers:`,
-      'recommendation',
-      { products: recommendedProducts.slice(0, 2) }
-    );
     setPhase(CHAT_PHASES.RECOMMENDATION);
   };
 
   const handleProductApproval = (products: ServerProduct[]) => {
     if (isAutoPlaying) return;
     
-    addAgentMessage("Excellent choice! Let me generate a customized quote for you right away.");
+    addAgentMessage(
+      "**Excellent choice!** I'm now generating a comprehensive, enterprise-grade quotation tailored specifically to your requirements.\n\n**What I'm preparing for you:**\n• Detailed server specifications and configurations\n• Competitive pricing with volume discounts\n• Comprehensive support and warranty options\n• Implementation timeline and professional services\n• Financing alternatives including HPE GreenLake\n\n**While I prepare your quote, I'm also:**\n• Assigning you to a specialized account executive\n• Scheduling follow-up technical consultation\n• Preparing reference customer introductions\n• Setting up proof-of-concept opportunities\n\n**Your customized HPE quotation will be ready momentarily!**"
+    );
     setPhase(CHAT_PHASES.QUOTATION);
     
     setTimeout(() => {
       addAgentMessage(
-        "Your quote has been generated and will be sent to your email shortly. I've also assigned you to one of our senior account executives who will follow up within 24 hours.",
+        "🎉 **Your HPE quotation is complete!**\n\n**Quote Details:**\n• Professional PDF with HPE branding\n• Detailed technical specifications\n• Competitive pricing and discounts\n• Support options and warranties\n• Implementation timeline\n\n**Account Executive Assignment:**\nI've connected you with one of our senior account executives who specializes in your type of deployment. They'll contact you within 4 hours to:\n• Review the quotation in detail\n• Answer technical questions\n• Discuss implementation planning\n• Provide reference customers\n• Arrange proof-of-concept if needed\n\n**Next steps:** Check your email for the complete quotation package!",
         'quote',
         { products, customer }
       );

@@ -328,13 +328,17 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
     </div>
   );
 }
+<Button>
+  <span>
+    Voice Input
+  </span>
+</Button>
 
-            <span>
-              <Mic className="mr-2 h-4 w-4" />
-              Voice Input
-            </span>
-          </Button>
-        </div>
+{/* Main Content */}
+<div>
+  {/* Add your main content here */}
+</div>
+
 
         {/* Main Content */}
         <div className="flex-1 flex items-center justify-center px-6">

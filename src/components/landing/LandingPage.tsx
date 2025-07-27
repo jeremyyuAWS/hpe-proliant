@@ -170,10 +170,10 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
                         <div className="flex-1 text-left">
                           <div className="text-xs text-[#FF8300] font-medium mb-2 uppercase tracking-wide">
                             {question.category}
-                          </div>
+                   className="group h-auto p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#01A982]/50 rounded-2xl text-left transition-all duration-300 hover:scale-105 hover:shadow-xl w-full"
                           <div className="text-white font-medium leading-relaxed">
-                            {question.text}
-                          </div>
+                   <div className="flex items-start space-x-4 w-full">
+                     <div className="p-3 bg-[#01A982]/20 rounded-xl group-hover:bg-[#01A982]/30 transition-colors flex-shrink-0">
                         </div>
                       </div>
                     </Button>

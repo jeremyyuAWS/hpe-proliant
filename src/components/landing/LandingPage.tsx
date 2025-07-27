@@ -1,0 +1,195 @@
+import React, { useState } from 'react';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Send, MessageCircle, Mic, TrendingUp, BarChart, Users, Lightbulb } from 'lucide-react';
+
+interface LandingPageProps {
+  onStartConversation: (initialMessage: string) => void;
+  onStartVoice: () => void;
+}
+
+export function LandingPage({ onStartConversation, onStartVoice }: LandingPageProps) {
+  const [inputValue, setInputValue] = useState('');
+
+  const quickQuestions = [
+    {
+      text: "What are the latest GenAI trends?",
+      icon: TrendingUp,
+      category: "Research"
+    },
+    {
+      text: "Summarize the future of IT services",
+      icon: BarChart,
+      category: "Analysis"
+    },
+    {
+      text: "How is AI transforming business operations?",
+      icon: Users,
+      category: "Business"
+    },
+    {
+      text: "What are the top cloud migration strategies?",
+      icon: Lightbulb,
+      category: "Technology"
+    }
+  ];
+
+  const handleSendMessage = () => {
+    if (inputValue.trim()) {
+      onStartConversation(inputValue.trim());
+    }
+  };
+
+  const handleQuickQuestion = (question: string) => {
+    onStartConversation(question);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#0F2027] via-[#203A43] to-[#2C5364] text-white overflow-hidden relative">
+      {/* Background Elements */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-20 left-20 w-96 h-96 bg-[#01A982] rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-80 h-80 bg-[#FF8300] rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-white rounded-full blur-2xl transform -translate-x-1/2 -translate-y-1/2"></div>
+      </div>
+
+      <div className="relative z-10 min-h-screen flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6">
+          <div className="flex items-center space-x-4">
+            <img 
+              src="/Hewlett-Packard-Enterprise-Logo-1.png" 
+              alt="HPE Logo" 
+              className="h-10 w-auto"
+            />
+            <div className="text-sm">
+              <div className="font-semibold">HPE AI Research Assistant</div>
+              <div className="text-[#01A982] text-xs">Powered by HFS Research</div>
+            </div>
+          </div>
+          <Button variant="ghost" onClick={onStartVoice} className="text-white hover:bg-white/10">
+            <Mic className="mr-2 h-4 w-4" />
+            Voice Input
+          </Button>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="max-w-4xl mx-auto text-center space-y-12">
+            {/* Hero Section */}
+            <div className="space-y-6 animate-fade-in">
+              <div className="w-20 h-20 bg-gradient-to-r from-[#01A982] to-[#FF8300] rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl">
+                <MessageCircle className="h-10 w-10 text-white" />
+              </div>
+              
+              <h1 className="text-5xl md:text-6xl font-bold leading-tight">
+                Instant AI Answers
+                <span className="block text-[#01A982] mt-2">Powered by HFS Research</span>
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Get personalized insights on technology trends, market analysis, and strategic guidance. 
+                Ask anything about digital transformation, GenAI, cloud services, and more.
+              </p>
+            </div>
+
+            {/* Chat Input Section */}
+            <div className="space-y-8">
+              <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
+                <div className="flex items-center space-x-4">
+                  <div className="flex-1 relative">
+                    <Input
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="What would you like to know?"
+                      className="w-full h-14 text-lg bg-white/90 border-none text-gray-800 placeholder-gray-500 rounded-2xl pl-6 pr-16 shadow-lg focus:ring-2 focus:ring-[#01A982] focus:bg-white"
+                    />
+                    <Button
+                      onClick={handleSendMessage}
+                      disabled={!inputValue.trim()}
+                      className="absolute right-2 top-2 h-10 w-10 p-0 bg-[#01A982] hover:bg-[#018f73] rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Send className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-center mt-4 space-x-4 text-sm text-gray-300">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-[#01A982] rounded-full animate-pulse"></div>
+                    <span>AI Research Assistant Online</span>
+                  </div>
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                  <span>Instant responses</span>
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                  <span>Expert insights</span>
+                </div>
+              </div>
+
+              {/* Quick Questions */}
+              <div className="space-y-6">
+                <h3 className="text-2xl font-semibold text-center">Or try these popular questions:</h3>
+                <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+                  {quickQuestions.map((question, index) => (
+                    <Button
+                      key={index}
+                      onClick={() => handleQuickQuestion(question.text)}
+                      variant="ghost"
+                      className="group h-auto p-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#01A982]/50 rounded-2xl text-left transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                    >
+                      <div className="flex items-start space-x-4">
+                        <div className="p-3 bg-[#01A982]/20 rounded-xl group-hover:bg-[#01A982]/30 transition-colors">
+                          <question.icon className="h-6 w-6 text-[#01A982]" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="text-xs text-[#FF8300] font-medium mb-2 uppercase tracking-wide">
+                            {question.category}
+                          </div>
+                          <div className="text-white font-medium leading-relaxed">
+                            {question.text}
+                          </div>
+                        </div>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Features */}
+            <div className="grid md:grid-cols-3 gap-8 pt-12 border-t border-white/10">
+              <div className="text-center space-y-3">
+                <div className="w-12 h-12 bg-[#01A982]/20 rounded-xl flex items-center justify-center mx-auto">
+                  <BarChart className="h-6 w-6 text-[#01A982]" />
+                </div>
+                <h4 className="font-semibold">Market Intelligence</h4>
+                <p className="text-sm text-gray-400">Access to latest research reports and market analysis</p>
+              </div>
+              <div className="text-center space-y-3">
+                <div className="w-12 h-12 bg-[#FF8300]/20 rounded-xl flex items-center justify-center mx-auto">
+                  <TrendingUp className="h-6 w-6 text-[#FF8300]" />
+                </div>
+                <h4 className="font-semibold">Trend Analysis</h4>
+                <p className="text-sm text-gray-400">Real-time insights on emerging technology trends</p>
+              </div>
+              <div className="text-center space-y-3">
+                <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto">
+                  <Lightbulb className="h-6 w-6 text-purple-400" />
+                </div>
+                <h4 className="font-semibold">Strategic Guidance</h4>
+                <p className="text-sm text-gray-400">Personalized recommendations for your business</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

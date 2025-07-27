@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { Send, MessageCircle, Mic, TrendingUp, BarChart, Users, Lightbulb } from 'lucide-react';
+import { Send, MessageCircle, Mic, TrendingUp, Server, Database, Wifi, Zap, Building } from 'lucide-react';
 
 interface LandingPageProps {
   onStartConversation: (initialMessage: string) => void;
@@ -13,24 +13,34 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
 
   const quickQuestions = [
     {
-      text: "What are the latest GenAI trends?",
+      text: "I need servers for virtualization workloads",
+      icon: Server,
+      category: "Virtualization"
+    },
+    {
+      text: "Looking for database servers with high performance",
+      icon: Database,
+      category: "Database"
+    },
+    {
+      text: "Need edge computing solutions for remote offices",
+      icon: Wifi,
+      category: "Edge Computing"
+    },
+    {
+      text: "AI/ML workloads requiring GPU acceleration",
+      icon: Zap,
+      category: "AI/ML"
+    },
+    {
+      text: "Small business looking for first server",
+      icon: Building,
+      category: "Small Business"
+    },
+    {
+      text: "High-performance computing for research",
       icon: TrendingUp,
-      category: "Research"
-    },
-    {
-      text: "Summarize the future of IT services",
-      icon: BarChart,
-      category: "Analysis"
-    },
-    {
-      text: "How is AI transforming business operations?",
-      icon: Users,
-      category: "Business"
-    },
-    {
-      text: "What are the top cloud migration strategies?",
-      icon: Lightbulb,
-      category: "Technology"
+      category: "HPC"
     }
   ];
 
@@ -87,15 +97,15 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
               <div className="w-20 h-20 bg-gradient-to-r from-[#01A982] to-[#FF8300] rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl">
                 <MessageCircle className="h-10 w-10 text-white" />
               </div>
-              
+                  <span className="text-white font-medium">HPE Sales AI Online</span>
               <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-                Instant AI Answers
-                <span className="block text-[#01A982] mt-2">Powered by HFS Research</span>
+                Find Your Perfect Server
+                <span>Instant quotes</span>
               </h1>
-              
+                <span>Expert recommendations</span>
               <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-                Get personalized insights on technology trends, market analysis, and strategic guidance. 
-                Ask anything about digital transformation, GenAI, cloud services, and more.
+                Get personalized HPE ProLiant server recommendations and instant quotes in under 2 minutes. 
+                ⚡ Get Your Server Quote in Under 2 Minutes
               </p>
             </div>
 
@@ -167,24 +177,24 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
             <div className="grid md:grid-cols-3 gap-8 pt-12 border-t border-white/10">
               <div className="text-center space-y-3">
                 <div className="w-12 h-12 bg-[#01A982]/20 rounded-xl flex items-center justify-center mx-auto">
-                  <BarChart className="h-6 w-6 text-[#01A982]" />
+                  <Server className="h-6 w-6 text-[#01A982]" />
                 </div>
-                <h4 className="font-semibold">Market Intelligence</h4>
-                <p className="text-sm text-gray-400">Access to latest research reports and market analysis</p>
+                <h4 className="font-semibold">Server Recommendations</h4>
+                <p className="text-sm text-gray-400">AI-powered matching to your exact requirements</p>
               </div>
               <div className="text-center space-y-3">
                 <div className="w-12 h-12 bg-[#FF8300]/20 rounded-xl flex items-center justify-center mx-auto">
-                  <TrendingUp className="h-6 w-6 text-[#FF8300]" />
+                  <MessageCircle className="h-6 w-6 text-[#FF8300]" />
                 </div>
-                <h4 className="font-semibold">Trend Analysis</h4>
-                <p className="text-sm text-gray-400">Real-time insights on emerging technology trends</p>
+                <h4 className="font-semibold">Instant Quotes</h4>
+                <p className="text-sm text-gray-400">Professional HPE-branded quotations in minutes</p>
               </div>
               <div className="text-center space-y-3">
                 <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto">
-                  <Lightbulb className="h-6 w-6 text-purple-400" />
+                  <Users className="h-6 w-6 text-purple-400" />
                 </div>
-                <h4 className="font-semibold">Strategic Guidance</h4>
-                <p className="text-sm text-gray-400">Personalized recommendations for your business</p>
+                <h4 className="font-semibold">Expert Support</h4>
+                <p className="text-sm text-gray-400">Dedicated account executives and sales support</p>
               </div>
             </div>
           </div>

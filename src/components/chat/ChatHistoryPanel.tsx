@@ -120,8 +120,8 @@ export function ChatHistoryPanel({
       {/* Footer */}
       <div className="p-4 border-t border-gray-200 bg-gray-50">
         <div className="text-center">
-          <p className="text-xs text-gray-500 mb-1">HPE AI Research Assistant</p>
-          <p className="text-xs text-[#01A982] font-medium">Powered by HFS Research</p>
+          <p className="text-xs text-gray-500 mb-1">HPE ProLiant Sales Advisor</p>
+          <p className="text-xs text-[#01A982] font-medium">Powered by HPE AI</p>
         </div>
       </div>
     </div>

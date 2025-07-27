@@ -91,87 +91,195 @@ export function ChatLayout({ initialMessage, onBackToLanding, isVoiceActive = fa
   }, [initialMessage]);
 
   const generateAIResponse = (message: string): string => {
-    const responses = {
-      'genai': `Based on the latest HFS research, GenAI is transforming enterprises through:
+    const lowercaseMessage = message.toLowerCase();
+    
+    // Phase 1: Requirements Gathering
+    if (conversationPhase === 'requirements') {
+      setConversationPhase('qualification');
+      return `Thank you for reaching out! I'm your HPE AI Sales Advisor, and I'm here to help you find the perfect ProLiant server solution.
 
-**Key Trends:**
-• 73% of organizations are implementing GenAI for process automation
-• Investment in GenAI platforms increased by 340% in 2024
-• Customer service and content creation are the top use cases
+I understand you're looking for servers for **${message}**. To provide you with the most accurate recommendations, I'll need to gather some additional information about your specific requirements.
 
-**Strategic Recommendations:**
-1. Start with pilot projects in low-risk areas
-2. Invest in data quality and governance first
-3. Develop internal AI literacy and training programs
+**Let me ask a few qualifying questions:**
 
-**Market Leaders:**
-Microsoft Azure OpenAI, AWS Bedrock, and Google Vertex AI are dominating the enterprise space.
+1. **What's your primary use case?** (e.g., virtualization, database, web hosting, AI/ML, general purpose)
+2. **How many users or VMs will you be supporting?**
+3. **Do you have any specific performance requirements?** (CPU, memory, storage needs)
+4. **What's your preferred form factor?** (rack mount, tower, blade)
+5. **What's your approximate budget range?**
 
-Would you like me to dive deeper into any specific aspect of GenAI adoption?`,
+Feel free to answer these in any order, or let me know if you need help understanding any of these requirements!`;
+    }
+    
+    // Phase 2: Qualification - Analyze responses and ask follow-ups
+    if (conversationPhase === 'qualification') {
+      // Store requirements (simplified logic)
+      const requirements = analyzeRequirements(message);
+      setCustomerRequirements(requirements);
       
-      'cloud': `Cloud migration strategies have evolved significantly based on our latest research:
+      if (requirements.needsMoreInfo) {
+        return `Great information! Based on what you've told me, I have a good understanding of your ${requirements.useCase} requirements.
 
-**Top 5 Migration Strategies:**
-1. **Lift & Shift** - Quick migration with minimal changes (30% of projects)
-2. **Re-platforming** - Optimize for cloud without major architecture changes
-3. **Refactoring** - Redesign applications for cloud-native benefits
-4. **Hybrid-First** - Strategic mix of on-premises and cloud resources
-5. **Multi-Cloud** - Distribute workloads across multiple providers
+Just a couple more questions to ensure I recommend the perfect solution:
 
-**Key Success Factors:**
-• Executive sponsorship and clear ROI metrics
-• Comprehensive staff training and change management
-• Phased approach with pilot projects
-• Strong security and compliance framework
+${requirements.followUpQuestions.join('\n')}
 
-**Cost Optimization:**
-Organizations typically see 20-30% cost savings within 18 months when migration is properly planned.
+Once I have these details, I'll be able to provide you with specific HPE ProLiant server recommendations with pricing.`;
+      } else {
+        setConversationPhase('recommendation');
+        const recommended = recommendServers(requirements);
+        setRecommendedProducts(recommended);
+        
+        return generateRecommendationResponse(recommended, requirements);
+      }
+    }
+    
+    // Phase 3: Recommendation approved - Generate quotation
+    if (conversationPhase === 'recommendation' && (lowercaseMessage.includes('yes') || lowercaseMessage.includes('approve') || lowercaseMessage.includes('quote') || lowercaseMessage.includes('proceed'))) {
+      setConversationPhase('quotation');
+      return `Excellent! I'll generate a comprehensive HPE quotation for you right away.
 
-What specific aspect of cloud migration would you like to explore further?`,
+**What I'm preparing for you:**
+• Detailed server specifications and configurations
+• Competitive pricing with volume discounts
+• Warranty and support options
+• Implementation timeline and next steps
 
-      'default': `Thank you for your question about "${message}". Based on HFS Research insights and current market analysis:
+This will take just a moment... 🔄
 
-**Key Insights:**
-• This topic is seeing significant enterprise adoption
-• Organizations are investing heavily in related technologies
-• Best practices are still emerging across industries
+While I'm preparing your quote, I'm also assigning you to one of our experienced HPE account executives who will be your dedicated point of contact for this project.`;
+    }
+    
+    // Phase 4: Escalation to sales support
+    if (lowercaseMessage.includes('help') || lowercaseMessage.includes('support') || lowercaseMessage.includes('speak to someone') || lowercaseMessage.includes('technical')) {
+      setConversationPhase('escalation');
+      return `I understand you'd like to speak with one of our technical specialists. Let me connect you with our expert sales support team right away.
 
-**Strategic Considerations:**
-1. Assess current organizational readiness
-2. Develop a comprehensive implementation roadmap
-3. Invest in change management and training
-4. Establish clear success metrics and KPIs
+**What's happening next:**
+• I'm transferring our complete conversation history
+• A senior sales engineer will join this chat shortly
+• They'll have full context of your requirements and can provide detailed technical consultation
 
-**Market Trends:**
-Leading organizations are taking a measured approach, starting with pilot projects and scaling based on proven results.
+Please hold for just a moment while I connect you... 🎧`;
+    }
+    
+    // Default response for other questions
+    return `I'm here to help you find the right HPE ProLiant server solution. Could you tell me more about your specific server requirements? For example:
 
-I can provide more specific guidance if you'd like to focus on a particular aspect of this topic. What would be most helpful for your situation?`
+• What workloads will you be running?
+• How many users or applications will be supported?
+• Do you have any specific performance needs?
+
+The more details you provide, the better I can recommend the perfect server configuration for your needs!`;
+  };
+
+  const analyzeRequirements = (message: string): any => {
+    const lowercaseMessage = message.toLowerCase();
+    const requirements: any = {
+      useCase: 'general purpose',
+      needsMoreInfo: false,
+      followUpQuestions: []
     };
 
-    const lowercaseMessage = message.toLowerCase();
-    if (lowercaseMessage.includes('genai') || lowercaseMessage.includes('ai')) {
-      return responses.genai;
-    } else if (lowercaseMessage.includes('cloud')) {
-      return responses.cloud;
-    } else {
-      return responses.default;
+    // Determine use case
+    if (lowercaseMessage.includes('virtualization') || lowercaseMessage.includes('vmware') || lowercaseMessage.includes('hyper-v')) {
+      requirements.useCase = 'virtualization';
+    } else if (lowercaseMessage.includes('database') || lowercaseMessage.includes('sql') || lowercaseMessage.includes('oracle')) {
+      requirements.useCase = 'database';
+    } else if (lowercaseMessage.includes('ai') || lowercaseMessage.includes('machine learning') || lowercaseMessage.includes('gpu')) {
+      requirements.useCase = 'ai-ml';
+    } else if (lowercaseMessage.includes('web') || lowercaseMessage.includes('hosting')) {
+      requirements.useCase = 'web';
+    } else if (lowercaseMessage.includes('small business') || lowercaseMessage.includes('office')) {
+      requirements.useCase = 'small-business';
+    }
+
+    // Check if we have enough info (simplified logic)
+    const hasUserCount = /\d+/.test(message) && (lowercaseMessage.includes('user') || lowercaseMessage.includes('vm') || lowercaseMessage.includes('employee'));
+    const hasFormFactor = lowercaseMessage.includes('rack') || lowercaseMessage.includes('tower') || lowercaseMessage.includes('blade');
+    const hasBudget = lowercaseMessage.includes('$') || lowercaseMessage.includes('budget') || lowercaseMessage.includes('price');
+
+    if (!hasUserCount) {
+      requirements.followUpQuestions.push('• How many users, VMs, or concurrent connections do you expect?');
+      requirements.needsMoreInfo = true;
+    }
+    
+    if (!hasFormFactor) {
+      requirements.followUpQuestions.push('• Do you prefer rack mount servers, tower servers, or blade systems?');
+      requirements.needsMoreInfo = true;
+    }
+
+    return requirements;
+  };
+
+  const recommendServers = (requirements: any): ServerProduct[] => {
+    const products = serverProducts as ServerProduct[];
+    
+    // Simple recommendation logic based on use case
+    switch (requirements.useCase) {
+      case 'virtualization':
+        return products.filter(p => p.useCases.includes('virtualization')).slice(0, 2);
+      case 'database':
+        return products.filter(p => p.useCases.includes('database')).slice(0, 2);
+      case 'ai-ml':
+        return products.filter(p => p.useCases.includes('ai-ml')).slice(0, 1);
+      case 'small-business':
+        return products.filter(p => p.useCases.includes('small-business')).slice(0, 1);
+      default:
+        return products.slice(0, 2);
+    }
+  };
+
+  const generateRecommendationResponse = (products: ServerProduct[], requirements: any): string => {
+    const productList = products.map((product, index) => 
+      `**${index + 1}. ${product.model}**
+• ${product.description}
+• Form Factor: ${product.specifications.formFactor}
+• Processors: ${product.specifications.processors}
+• Memory: ${product.specifications.memory}
+• Starting Price: **$${product.pricing.basePrice.toLocaleString()}**`
+    ).join('\n\n');
+
+    return `Perfect! Based on your ${requirements.useCase} requirements, I recommend the following HPE ProLiant servers:
+
+${productList}
+
+**Why these recommendations?**
+• Optimized for ${requirements.useCase} workloads
+• Proven reliability and performance
+• Industry-leading warranty and support
+• Scalable to grow with your business
+
+**Next Steps:**
+Would you like me to generate a detailed quotation for any of these servers? I can also customize the configuration to better match your specific needs.
+
+Just say "yes" or "generate quote" and I'll prepare your HPE-branded quotation immediately!`;
     }
   };
 
   const extractRelatedTopics = (message: string): string[] => {
-    const topicMap: Record<string, string[]> = {
-      'genai': ['Machine Learning', 'Automation', 'NLP', 'Computer Vision', 'AI Ethics'],
-      'cloud': ['DevOps', 'Containerization', 'Microservices', 'Security', 'Cost Optimization'],
-      'default': ['Digital Transformation', 'Innovation', 'Technology Strategy', 'Market Analysis']
+    const serverTopicMap: Record<string, string[]> = {
+      'virtualization': ['VMware vSphere', 'Hyper-V', 'Memory Optimization', 'High Availability', 'Disaster Recovery'],
+      'database': ['SQL Server', 'Oracle Database', 'MySQL', 'Storage Performance', 'Backup Solutions'],
+      'ai-ml': ['GPU Acceleration', 'TensorFlow', 'PyTorch', 'Data Analytics', 'Model Training'],
+      'web': ['Load Balancing', 'Web Applications', 'Content Delivery', 'SSL Certificates', 'Security'],
+      'small-business': ['File Sharing', 'Email Server', 'Domain Controller', 'Backup', 'Remote Access'],
+      'default': ['Server Consolidation', 'Power Efficiency', 'Scalability', 'Warranty Options', 'Support Services']
     };
 
     const lowercaseMessage = message.toLowerCase();
-    if (lowercaseMessage.includes('genai') || lowercaseMessage.includes('ai')) {
-      return topicMap.genai;
-    } else if (lowercaseMessage.includes('cloud')) {
-      return topicMap.cloud;
+    if (lowercaseMessage.includes('virtualization') || lowercaseMessage.includes('vmware')) {
+      return serverTopicMap.virtualization;
+    } else if (lowercaseMessage.includes('database') || lowercaseMessage.includes('sql')) {
+      return serverTopicMap.database;
+    } else if (lowercaseMessage.includes('ai') || lowercaseMessage.includes('machine learning')) {
+      return serverTopicMap['ai-ml'];
+    } else if (lowercaseMessage.includes('web') || lowercaseMessage.includes('hosting')) {
+      return serverTopicMap.web;
+    } else if (lowercaseMessage.includes('small business')) {
+      return serverTopicMap['small-business'];
     } else {
-      return topicMap.default;
+      return serverTopicMap.default;
     }
   };
 

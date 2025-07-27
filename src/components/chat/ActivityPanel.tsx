@@ -24,10 +24,10 @@ export function ActivityPanel({ activityData, messageCount }: ActivityPanelProps
           </div>
           <div className="space-y-1">
             <div className={`w-2 h-2 rounded-full ${
-              activityData.isProcessing ? 'bg-[#FF8300] animate-pulse' : 'bg-green-500'
+              activityData.isProcessing ? 'bg-[#FF8300] animate-pulse' : 'bg-[#01A982]'
             }`}></div>
             <p className="text-xs text-gray-600">
-              {activityData.isProcessing ? 'Processing...' : 'Ready'}
+              {activityData.isProcessing ? 'Analyzing...' : 'Ready'}
             </p>
           </div>
         </div>
@@ -46,7 +46,7 @@ export function ActivityPanel({ activityData, messageCount }: ActivityPanelProps
             {activityData.sourceCount > 0 && (
               <div className="flex justify-between">
                 <span className="text-gray-600">Sources:</span>
-                <span className="font-medium">{activityData.sourceCount}</span>
+                <span className="font-medium">{activityData.sourceCount} servers</span>
               </div>
             )}
             {activityData.processingTime > 0 && (
@@ -109,7 +109,7 @@ export function ActivityPanel({ activityData, messageCount }: ActivityPanelProps
           <p className="text-xs text-gray-700 leading-relaxed">
             {messageCount === 0 ? 'Start a conversation to see AI insights' :
              messageCount < 3 ? 'Building context from your questions...' :
-             'Based on your conversation, consider exploring cloud cost optimization strategies.'}
+             'Based on your requirements, I recommend exploring our DL380 Gen11 series for optimal performance.'}
           </p>
         </div>
       </div>

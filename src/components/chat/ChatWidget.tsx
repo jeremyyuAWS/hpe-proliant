@@ -586,7 +586,7 @@ export function ChatWidget({ isOpen, onToggle, onVoiceToggle, isVoiceActive }: C
         {messages.length <= 1 && !isAutoPlaying && (
           <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 border-b">
             <p className="text-xs text-gray-600 mb-3">💡 Try these demo scenarios:</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 justify-start">
               <button
                 onClick={() => startAutoPlayDemo('virtualization-demo')}
                 className="px-3 py-1.5 bg-white border border-green-200 rounded-full text-xs font-medium text-green-700 hover:bg-green-50 transition-colors"

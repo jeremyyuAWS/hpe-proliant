@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Button } from './components/ui/Button';
 import { LandingPage } from './components/landing/LandingPage';
 import { ChatLayout } from './components/chat/ChatLayout';
 import { VoiceAgent } from './components/voice/VoiceAgent';
@@ -12,10 +11,16 @@ function App() {
   const [currentView, setCurrentView] = useState<AppView>('landing');
   const [initialMessage, setInitialMessage] = useState('');
   const [isVoiceActive, setIsVoiceActive] = useState(false);
+  const [autoplayDemoType, setAutoplayDemoType] = useState<string>('');
 
-  const handleStartConversation = (message: string) => {
+  const handleStartConversation = (message: string, isDemo?: boolean, demoType?: string) => {
+    if (isDemo && demoType) {
+      setAutoplayDemoType(demoType);
+      setCurrentView('autoplay');
+    } else {
     setInitialMessage(message);
     setCurrentView('chat');
+    }
   };
 
   const handleStartVoice = () => {
@@ -26,6 +31,7 @@ function App() {
     setCurrentView('landing');
     setInitialMessage('');
     setIsVoiceActive(false);
+    setAutoplayDemoType('');
   };
 
   const handleViewDashboard = () => {
@@ -51,7 +57,12 @@ function App() {
   }
 
   if (currentView === 'autoplay') {
-    return <AutoplayDemo />;
+    return (
+      <AutoplayDemo 
+        demoType={autoplayDemoType}
+        onBackToLanding={handleBackToLanding}
+      />
+    );
   }
 
   return (
@@ -65,24 +76,6 @@ function App() {
         isActive={isVoiceActive}
         onToggle={() => setIsVoiceActive(!isVoiceActive)}
       />
-
-      {/* Demo Navigation */}
-      <div className="fixed top-4 right-4 z-40 space-y-2">
-        <Button
-          onClick={handleViewDashboard}
-          className="bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 border border-white/20"
-          size="sm"
-        >
-          View Dashboard
-        </Button>
-        <Button
-          onClick={handleViewAutoplay}
-          className="bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 border border-white/20"
-          size="sm"
-        >
-          Autoplay Demo
-        </Button>
-      </div>
     </div>
   );
 }

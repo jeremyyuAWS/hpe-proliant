@@ -9,7 +9,7 @@ import { Input } from '../ui/Input';
 import { Send, MessageCircle, Mic, TrendingUp, Server, Database, Wifi, Zap, Building, BarChart, Lightbulb, Eye, Users, Video, Monitor, Smartphone } from 'lucide-react';
 
 interface LandingPageProps {
-  onStartConversation: (initialMessage: string) => void;
+  onStartConversation: (initialMessage: string, isDemo?: boolean, demoType?: string) => void;
   onStartVoice: () => void;
 }
 
@@ -26,32 +26,38 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
     {
       text: "I need servers for virtualization workloads",
       icon: Server,
-      category: "Virtualization"
+      category: "Virtualization",
+      demoType: "enterprise-virtualization-demo"
     },
     {
       text: "Looking for database servers with high performance",
       icon: Database,
-      category: "Database"
+      category: "Database",
+      demoType: "database-analytics-demo"
     },
     {
       text: "Need edge computing solutions for remote offices",
       icon: Wifi,
-      category: "Edge Computing"
+      category: "Edge Computing",
+      demoType: "manufacturing-edge-demo"
     },
     {
       text: "AI/ML workloads requiring GPU acceleration",
       icon: Zap,
-      category: "AI/ML"
+      category: "AI/ML",
+      demoType: "database-analytics-demo"
     },
     {
       text: "Small business looking for first server",
       icon: Building,
-      category: "Small Business"
+      category: "Small Business",
+      demoType: "startup-scaling-demo"
     },
     {
       text: "High-performance computing for research",
       icon: TrendingUp,
-      category: "HPC"
+      category: "HPC",
+      demoType: "healthcare-compliance-demo"
     }
   ];
 
@@ -62,7 +68,12 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
   };
 
   const handleQuickQuestion = (question: string) => {
-    onStartConversation(question);
+    const selectedQuestion = quickQuestions.find(q => q.text === question);
+    if (selectedQuestion?.demoType) {
+      onStartConversation(question, true, selectedQuestion.demoType);
+    } else {
+      onStartConversation(question);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

@@ -80,8 +80,7 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
   };
 
   return (
-    <>
-      <div className="min-h-screen bg-gradient-to-br from-[#0F2027] via-[#203A43] to-[#2C5364] text-white overflow-hidden relative tour-landing-hero">
+    <div className="min-h-screen bg-gradient-to-br from-[#0F2027] via-[#203A43] to-[#2C5364] text-white overflow-hidden relative tour-landing-hero">
       {/* Background Elements */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-20 w-96 h-96 bg-[#01A982] rounded-full blur-3xl"></div>
@@ -326,8 +325,7 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
         customerName="Alex Kim"
         customerCompany="InnovateTech Startup"
       />
-      </div>
-    </>
+    </div>
   );
 }
 

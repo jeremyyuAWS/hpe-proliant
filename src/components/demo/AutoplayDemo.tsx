@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { QuoteDisplay } from '../chat/QuoteDisplay';
-import { Play, Pause, SkipForward, RotateCcw, User, Bot } from 'lucide-react';
+import { ChatWindow } from '../chat/ChatWindow';
+import { ChatHistoryPanel } from '../chat/ChatHistoryPanel';
+import { ActivityPanel } from '../chat/ActivityPanel';
+import { Play, Pause, SkipForward, RotateCcw, ArrowLeft, MessageSquare, Activity, TrendingUp } from 'lucide-react';
 import demoConversations from '../../data/demoConversations.json';
 import serverProducts from '../../data/serverProducts.json';
+import { ChatMessage } from '../../types';
 
 interface DemoConversation {
   id: string;
@@ -34,9 +37,17 @@ export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
   const [currentDemo, setCurrentDemo] = useState(0);
   const [currentMessage, setCurrentMessage] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [displayedMessages, setDisplayedMessages] = useState<any[]>([]);
+  const [displayedMessages, setDisplayedMessages] = useState<ChatMessage[]>([]);
   const [showQuote, setShowQuote] = useState(false);
   const [generatedQuote, setGeneratedQuote] = useState<any>(null);
+  const [chatHistories, setChatHistories] = useState<any[]>([]);
+  const [activityData, setActivityData] = useState({
+    isProcessing: false,
+    currentAction: '',
+    relatedTopics: [] as string[],
+    sourceCount: 8,
+    processingTime: 1200
+  });
   const timeoutRef = useRef<NodeJS.Timeout>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -92,8 +103,38 @@ export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
       const message = currentConversation.conversation[currentMessage];
       const nextMessage = currentConversation.conversation[currentMessage + 1];
       
-      // Add current message to display
-      setDisplayedMessages(prev => [...prev, message]);
+      // Set processing state for agent messages
+      if (message.sender === 'agent') {
+        setActivityData(prev => ({ 
+          ...prev, 
+          isProcessing: true, 
+          currentAction: getActionForMessageType(message.type),
+          relatedTopics: getTopicsForMessage(message.content)
+        }));
+      }
+      
+      // Add current message to display as ChatMessage
+      const chatMessage: ChatMessage = {
+        id: `demo-${currentMessage}`,
+        content: message.content,
+        sender: message.sender,
+        timestamp: new Date(),
+        type: 'text'
+      };
+      
+      setDisplayedMessages(prev => [...prev, chatMessage]);
+      
+      // Update activity data
+      if (message.sender === 'agent') {
+        setTimeout(() => {
+          setActivityData(prev => ({ 
+            ...prev, 
+            isProcessing: false,
+            currentAction: '',
+            processingTime: Math.floor(Math.random() * 800) + 600
+          }));
+        }, 1000);
+      }
       
       // Set timeout for next message
       const delay = nextMessage ? nextMessage.timestamp - message.timestamp : 3000;
@@ -114,6 +155,45 @@ export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
     };
   }, [isPlaying, currentMessage, currentDemo]);
 
+  // Initialize chat history for the demo
+  useEffect(() => {
+    const history = {
+      id: `demo-${currentDemo}`,
+      title: currentConversation.title,
+      messages: [],
+      createdAt: new Date(),
+      lastActivity: new Date()
+    };
+    setChatHistories([history]);
+  }, [currentDemo]);
+
+  const getActionForMessageType = (type: string): string => {
+    switch (type) {
+      case 'greeting': return 'Initializing conversation...';
+      case 'qualification': return 'Analyzing requirements...';
+      case 'recommendation': return 'Matching server configurations...';
+      case 'quote_generation': return 'Generating enterprise quotation...';
+      case 'completion': return 'Finalizing quote delivery...';
+      default: return 'Processing response...';
+    }
+  };
+
+  const getTopicsForMessage = (content: string): string[] => {
+    const topics = [];
+    if (content.toLowerCase().includes('virtualization')) {
+      topics.push('VMware vSphere', 'Hyper-V', 'Memory Optimization', 'High Availability');
+    }
+    if (content.toLowerCase().includes('database')) {
+      topics.push('SQL Server', 'Oracle Database', 'Storage Performance', 'Backup Solutions');
+    }
+    if (content.toLowerCase().includes('ai') || content.toLowerCase().includes('machine learning')) {
+      topics.push('GPU Acceleration', 'TensorFlow', 'Data Analytics', 'Model Training');
+    }
+    if (topics.length === 0) {
+      topics.push('Server Consolidation', 'Power Efficiency', 'Scalability', 'Support Services');
+    }
+    return topics.slice(0, 4);
+  };
   const playDemo = () => {
     setIsPlaying(true);
   };
@@ -129,6 +209,7 @@ export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
     setIsPlaying(false);
     setCurrentMessage(0);
     setDisplayedMessages([]);
+    setActivityData(prev => ({ ...prev, isProcessing: false, currentAction: '', relatedTopics: [] }));
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -257,27 +338,17 @@ export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
     resetDemo();
   };
 
-  const getMessageTypeStyle = (type: string) => {
-    switch (type) {
-      case 'greeting':
-        return 'border-l-4 border-[#01A982] bg-green-50';
-      case 'requirement':
-        return 'border-l-4 border-blue-500 bg-blue-50';
-      case 'qualification':
-        return 'border-l-4 border-purple-500 bg-purple-50';
-      case 'recommendation':
-        return 'border-l-4 border-[#FF8300] bg-orange-50';
-      case 'approval':
-        return 'border-l-4 border-green-600 bg-green-100';
-      case 'quote_generation':
-        return 'border-l-4 border-yellow-500 bg-yellow-50';
-      case 'completion':
-        return 'border-l-4 border-emerald-600 bg-emerald-50';
-      case 'escalation':
-        return 'border-l-4 border-red-500 bg-red-50';
-      default:
-        return 'border-l-4 border-gray-300 bg-gray-50';
-    }
+  const handleSendMessage = (content: string) => {
+    // Demo is autoplay only, don't allow manual input
+    console.log('Demo is autoplay mode');
+  };
+
+  const handleSelectChat = (chatId: string) => {
+    // Only one demo chat in autoplay mode
+  };
+
+  const handleNewChat = () => {
+    resetDemo();
   };
 
   const getProgressPercentage = () => {
@@ -287,32 +358,42 @@ export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
   // Show quote screen if generated
   if (showQuote && generatedQuote) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-        <div className="bg-gradient-to-r from-[#0F2027] to-[#203A43] text-white p-6">
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-gradient-to-r from-[#0F2027] to-[#203A43] text-white p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <img 
                 src="/Hewlett-Packard-Enterprise-Logo-1.png" 
                 alt="HPE Logo" 
-                className="h-8 w-auto"
+                className="h-6 w-auto"
               />
               <div>
-                <h2 className="text-xl font-semibold">🎉 Demo Complete - Quote Generated!</h2>
-                <p className="text-[#01A982] text-sm">AI-Powered Sales Process Completed</p>
+                <h2 className="text-lg font-semibold">🎉 Demo Complete - Quote Generated!</h2>
+                <p className="text-[#01A982] text-xs">AI-Powered Sales Process Completed</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
+              {onBackToLanding && (
+                <Button
+                  onClick={onBackToLanding}
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Back to Home
+                </Button>
+              )}
               <Button
                 onClick={handleCloseQuote}
                 size="sm"
                 className="bg-gray-600 hover:bg-gray-700 text-white"
               >
-                {onBackToLanding ? 'Back to Home' : 'Close & Next Demo'}
+                Close & Next Demo
               </Button>
             </div>
           </div>
           
-          <div className="mt-4 grid md:grid-cols-3 gap-4 text-sm">
+          <div className="mt-3 grid md:grid-cols-3 gap-3 text-sm">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
               <div className="text-[#01A982] font-semibold">⚡ Total Time</div>
               <div className="text-white">Under 2 minutes</div>
@@ -328,7 +409,7 @@ export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
           </div>
         </div>
         
-        <div className="p-6">
+        <div className="p-4">
           <QuoteDisplay 
             quoteData={generatedQuote}
             onClose={onBackToLanding || handleCloseQuote}
@@ -339,19 +420,19 @@ export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Demo Header */}
-      <div className="bg-gradient-to-r from-[#0F2027] to-[#203A43] text-white p-6">
+      <div className="bg-gradient-to-r from-[#0F2027] to-[#203A43] text-white p-4 flex-shrink-0">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <img 
               src="/Hewlett-Packard-Enterprise-Logo-1.png" 
               alt="HPE Logo" 
-              className="h-8 w-auto"
+              className="h-6 w-auto"
             />
             <div>
-              <h2 className="text-xl font-semibold">HPE AI Sales Assistant Demo</h2>
-              <p className="text-[#01A982] text-sm">Live Conversation Simulation</p>
+              <h2 className="text-lg font-semibold">HPE AI Sales Assistant Demo</h2>
+              <p className="text-[#01A982] text-xs">Live Conversation Simulation</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -368,6 +449,12 @@ export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
             <Button onClick={nextDemo} size="sm" className="bg-gray-600 hover:bg-gray-700 text-white">
               <SkipForward className="h-4 w-4" />
             </Button>
+            {onBackToLanding && (
+              <Button onClick={onBackToLanding} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back to Home
+              </Button>
+            )}
             {onBackToLanding && (
               <Button onClick={onBackToLanding} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                 Back to Home
@@ -394,7 +481,7 @@ export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-white/20 rounded-full h-2 mb-4">
+        <div className="w-full bg-white/20 rounded-full h-1.5 mb-3">
           <div 
             className="bg-[#01A982] h-2 rounded-full transition-all duration-500"
             style={{ width: `${getProgressPercentage()}%` }}
@@ -402,7 +489,7 @@ export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
         </div>
 
         {/* Current Demo Info */}
-        <div className="grid md:grid-cols-2 gap-4 text-sm">
+        <div className="grid md:grid-cols-2 gap-3 text-xs">
           <div>
             <h3 className="font-semibold text-[#01A982] mb-2">Customer Profile</h3>
             <div className="space-y-1 text-gray-300">
@@ -418,107 +505,55 @@ export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
         </div>
       </div>
 
-      {/* Chat Interface */}
-      <div className="h-96 overflow-y-auto p-6 bg-gray-50">
-        <div className="space-y-4">
-          {displayedMessages.map((message, index) => (
-            <div key={index} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`flex max-w-[85%] ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start space-x-3`}>
-                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                  message.sender === 'user' ? 'bg-blue-500 ml-3' : 'bg-[#01A982] mr-3'
-                }`}>
-                  {message.sender === 'user' ? (
-                    <User className="h-4 w-4 text-white" />
-                  ) : (
-                    <Bot className="h-4 w-4 text-white" />
-                  )}
-                </div>
-                
-                <div className={`rounded-2xl px-4 py-3 ${getMessageTypeStyle(message.type)} animate-fade-in`}>
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-xs font-medium text-gray-600">
-                      {message.sender === 'user' ? currentConversation.persona.name : 'HPE AI Advisor'}
-                    </span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      message.type === 'greeting' ? 'bg-green-100 text-green-700' :
-                      message.type === 'requirement' ? 'bg-blue-100 text-blue-700' :
-                      message.type === 'qualification' ? 'bg-purple-100 text-purple-700' :
-                      message.type === 'recommendation' ? 'bg-orange-100 text-orange-700' :
-                      message.type === 'approval' ? 'bg-green-100 text-green-700' :
-                      message.type === 'quote_generation' ? 'bg-yellow-100 text-yellow-700' :
-                      message.type === 'completion' ? 'bg-emerald-100 text-emerald-700' :
-                      message.type === 'escalation' ? 'bg-red-100 text-red-700' :
-                      'bg-gray-100 text-gray-700'
-                    }`}>
-                      {message.type.replace('_', ' ')}
-                    </span>
-                  </div>
-                  <div 
-                    className="text-sm text-gray-800 prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ 
-                      __html: formatMessageContent(message.content) 
-                    }}
-                  />
-                  
-                  {message.products && (
-                    <div className="mt-3 p-3 bg-white rounded-lg border">
-                      <p className="text-xs font-medium text-gray-600 mb-2">Recommended Server:</p>
-                      <p className="text-sm font-semibold text-[#01A982]">HPE ProLiant Server Configuration</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-          
-          {isPlaying && currentMessage < currentConversation.conversation.length && (
-            <div className="flex justify-start">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-[#01A982] rounded-full flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-white" />
-                </div>
-                <div className="bg-white rounded-2xl px-4 py-3 border">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-[#01A982] rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-[#01A982] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-[#01A982] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {currentMessage >= currentConversation.conversation.length && (
-            <div className="text-center py-6">
-              <div className="inline-flex items-center space-x-2 bg-green-100 text-green-800 px-4 py-2 rounded-full">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm font-medium">Demo Complete - Generating Quote...</span>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">Quote will display in a few seconds...</p>
-            </div>
-          )}
+      {/* 3-Panel Chat Layout */}
+      <div className="flex-1 flex">
+        {/* Left Panel - Chat History (15%) */}
+        <div className="w-[15%] bg-white border-r border-gray-200 flex flex-col">
+          <ChatHistoryPanel
+            chatHistories={chatHistories}
+            currentChatId={chatHistories[0]?.id || ''}
+            onSelectChat={handleSelectChat}
+            onNewChat={handleNewChat}
+            onBackToLanding={onBackToLanding || (() => {})}
+          />
+        </div>
 
-          <div ref={messagesEndRef} />
+        {/* Middle Panel - Chat Window (70%) */}
+        <div className="w-[70%] flex flex-col">
+          <ChatWindow
+            messages={displayedMessages}
+            onSendMessage={handleSendMessage}
+            isVoiceActive={false}
+            activityData={activityData}
+          />
+        </div>
+
+        {/* Right Panel - Activity Panel (15%) */}
+        <div className="w-[15%] bg-gray-100 border-l border-gray-200">
+          <ActivityPanel
+            activityData={activityData}
+            messageCount={displayedMessages.length}
+          />
         </div>
       </div>
 
-      {/* Demo Stats */}
-      <div className="bg-gray-100 px-6 py-4 border-t">
-        <div className="grid grid-cols-3 gap-4 text-center">
+      {/* Demo Stats Footer */}
+      <div className="bg-gray-100 px-4 py-3 border-t flex-shrink-0">
+        <div className="grid grid-cols-3 gap-3 text-center">
           <div>
-            <div className="text-lg font-bold text-[#01A982]">
+            <div className="text-base font-bold text-[#01A982]">
               {Math.round(currentConversation.conversation.length * 0.5)}s
             </div>
             <div className="text-xs text-gray-600">Time to Quote</div>
           </div>
           <div>
-            <div className="text-lg font-bold text-[#FF8300]">
+            <div className="text-base font-bold text-[#FF8300]">
               {currentConversation.conversation.filter(m => m.type === 'qualification').length}
             </div>
             <div className="text-xs text-gray-600">Qualifying Questions</div>
           </div>
           <div>
-            <div className="text-lg font-bold text-blue-600">
+            <div className="text-base font-bold text-blue-600">
               {currentConversation.conversation.filter(m => m.type === 'recommendation').length}
             </div>
             <div className="text-xs text-gray-600">Server Recommendations</div>

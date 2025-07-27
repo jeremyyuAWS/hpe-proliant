@@ -408,31 +408,6 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
 
                 {/* Features */}
                 <div className="grid md:grid-cols-3 gap-8 pt-12 border-t border-white/10">
-                  <div className="text-center space-y-3">
-                    <div className="w-12 h-12 bg-[#01A982]/20 rounded-xl flex items-center justify-center mx-auto">
-                      <BarChart className="h-6 w-6 text-[#01A982]" />
-                    </div>
-                    <h4 className="font-semibold">AI-Powered Recommendations</h4>
-                    <p className="text-sm text-gray-400">Smart server matching based on your workload requirements</p>
-                  </div>
-                  <div className="text-center space-y-3">
-                    <div className="w-12 h-12 bg-[#FF8300]/20 rounded-xl flex items-center justify-center mx-auto">
-                      <TrendingUp className="h-6 w-6 text-[#FF8300]" />
-                    </div>
-                    <h4 className="font-semibold">Instant Quotes</h4>
-                    <p className="text-sm text-gray-400">Professional HPE quotations generated in under 2 minutes</p>
-                  </div>
-                  <div className="text-center space-y-3">
-                    <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto">
-                      <Lightbulb className="h-6 w-6 text-purple-400" />
-                    </div>
-                    <h4 className="font-semibold">Expert Support</h4>
-                    <p className="text-sm text-gray-400">24/7 access to HPE sales engineers and technical specialists</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         )}
       </div>
 

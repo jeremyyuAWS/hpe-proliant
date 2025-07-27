@@ -25,7 +25,12 @@ interface DemoConversation {
   }>;
 }
 
-export function AutoplayDemo() {
+interface AutoplayDemoProps {
+  demoType?: string;
+  onBackToLanding?: () => void;
+}
+
+export function AutoplayDemo({ demoType, onBackToLanding }: AutoplayDemoProps) {
   const [currentDemo, setCurrentDemo] = useState(0);
   const [currentMessage, setCurrentMessage] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -38,12 +43,50 @@ export function AutoplayDemo() {
   const conversations = demoConversations as DemoConversation[];
   const currentConversation = conversations[currentDemo];
 
+  // Start specific demo if demoType is provided
+  useEffect(() => {
+    if (demoType) {
+      const demoIndex = conversations.findIndex(conv => conv.id === demoType);
+      if (demoIndex !== -1) {
+        setCurrentDemo(demoIndex);
+        setIsPlaying(true);
+      }
+    }
+  }, [demoType]);
+
   // Auto-scroll to bottom when new messages are added during autoplay
   useEffect(() => {
     if (isPlaying && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [displayedMessages, isPlaying]);
+
+  // Format message content with markdown support
+  const formatMessageContent = (content: string) => {
+    return content
+      // Bold text **text**
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      // Italic text *text*
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      // Bullet points
+      .replace(/^[•·] (.+)$/gm, '<li>$1</li>')
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      // Numbered lists
+      .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+      // Wrap consecutive list items
+      .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>')
+      // Line breaks
+      .split('\n').map(line => {
+        if (line.includes('<ul>') || line.includes('<li>')) {
+          return line;
+        }
+        return line;
+      }).join('<br>')
+      // Clean up nested ul tags
+      .replace(/<\/ul><br><ul>/g, '')
+      .replace(/<ul><li>/g, '<ul><li>')
+      .replace(/<\/li><\/ul>/g, '</li></ul>');
+  };
   useEffect(() => {
     if (isPlaying && currentMessage < currentConversation.conversation.length) {
       const message = currentConversation.conversation[currentMessage];
@@ -201,7 +244,11 @@ export function AutoplayDemo() {
     setGeneratedQuote(null);
     // Auto-advance to next demo after closing quote
     setTimeout(() => {
-      nextDemo();
+      if (onBackToLanding) {
+        onBackToLanding();
+      } else {
+        nextDemo();
+      }
     }, 1000);
   };
 
@@ -260,7 +307,7 @@ export function AutoplayDemo() {
                 size="sm"
                 className="bg-gray-600 hover:bg-gray-700 text-white"
               >
-                Close & Next Demo
+                {onBackToLanding ? 'Back to Home' : 'Close & Next Demo'}
               </Button>
             </div>
           </div>
@@ -284,7 +331,7 @@ export function AutoplayDemo() {
         <div className="p-6">
           <QuoteDisplay 
             quoteData={generatedQuote}
-            onClose={handleCloseQuote}
+            onClose={onBackToLanding || handleCloseQuote}
           />
         </div>
       </div>
@@ -321,6 +368,11 @@ export function AutoplayDemo() {
             <Button onClick={nextDemo} size="sm" className="bg-gray-600 hover:bg-gray-700 text-white">
               <SkipForward className="h-4 w-4" />
             </Button>
+            {onBackToLanding && (
+              <Button onClick={onBackToLanding} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                Back to Home
+              </Button>
+            )}
           </div>
         </div>
 
@@ -401,7 +453,12 @@ export function AutoplayDemo() {
                       {message.type.replace('_', ' ')}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-800">{message.content}</p>
+                  <div 
+                    className="text-sm text-gray-800 prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ 
+                      __html: formatMessageContent(message.content) 
+                    }}
+                  />
                   
                   {message.products && (
                     <div className="mt-3 p-3 bg-white rounded-lg border">
@@ -440,7 +497,7 @@ export function AutoplayDemo() {
               <p className="text-xs text-gray-500 mt-2">Quote will display in a few seconds...</p>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
       </div>

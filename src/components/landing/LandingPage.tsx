@@ -148,9 +148,6 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
                 <h3 className="text-2xl font-semibold text-center">Or try these popular questions:</h3>
                 <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
                   {quickQuestions.map((question, index) => (
-                    )
-                    )
-                    }
                     <Button
                       key={index}
                       onClick={() => handleQuickQuestion(question.text)}
@@ -163,15 +160,14 @@ export function LandingPage({ onStartConversation, onStartVoice }: LandingPagePr
                         </div>
                         <div className="flex-1 text-left">
                           <div className="text-xs text-[#FF8300] font-medium mb-2 uppercase tracking-wide">
-                  Server Recommendations
+                            {question.category}
                           </div>
                           <div className="text-white font-medium leading-relaxed">
-                            {question.text}
                   HPE-Branded Quotes
                         </div>
                       </div>
                     </Button>
-                  Account Executive Assignment
+                  ))}
                 </div>
               </div>
             </div>
